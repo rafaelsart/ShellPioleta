@@ -35,6 +35,18 @@ int parseLine(char *v, char **trix, int commandLine) {
 	return 0;
 }
 
+/*
+
+int interpreter(char **trix, int commandLine) {
+	int i;
+
+	for(i=0; i != '/0'; i++){
+		trix[i][commandLine]; // Nao terminado, parado na metade
+	}
+}
+
+*/
+
 int main(void) {
 	int i, j, loopProgram, commandLine;
 	char c, *v, **trix;
@@ -45,7 +57,7 @@ int main(void) {
 	loopProgram = 1;
 	commandLine = 1;
 
-	while(loopProgram){
+	while(loopProgram) {
 		/* lendo a linha de comando */
 
 		for(i=0; c != '\n'; i++){
@@ -64,7 +76,7 @@ int main(void) {
 			printf("%c", trix[commandLine][i]);
 		}
 
-		// interpreter(trix);
+		// interpreter(trix, commandLine);
 				
 		commandLine++;			
 	}
