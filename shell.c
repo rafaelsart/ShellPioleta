@@ -82,9 +82,15 @@ int parseLine(char *v, char **trix, int commandLine) {
 	return 0;
 }
 
-int runCommand(char *path, char *v, int parNum, char **trix, int runBg) {
-	int i, j, k;
-	pid_t pid;
+int runCommand(char *path, char *v, int parNum, char **aux, char **trix, int runBg) {
+	char temp[1000], temp2[1000];
+	int i, j, k, status, pipe_to_file, Nprocess;
+	int fds[2];
+	pid_t pid, pid2;
+	char *args[100];
+	FILE *ori_stdin = stdin;
+	FILE *ori_stdout = stdout;
+	FILE *ori_stderr = stderr;
 
 	/* Criando novo processo */
 	pid = fork();
@@ -96,7 +102,86 @@ int runCommand(char *path, char *v, int parNum, char **trix, int runBg) {
 		setpgid(0,0);
 		i = 0;
 		while(i < parNum) {
+			k = 0;
+			fflush(0);
+			pipe_to_file=0;
+			while(i < parNum){
+			if (strcmp(aux[i], "|")==0) { // | indica o término de um comando
+				j++;
+				break;
+			} else if (strcmp(aux[i], ">")==0) { // saida para um arquivo
+				j++;
+				freopen (aux[i], "w", stdout);
+				pipe_to_file=1;
+			} else if (strcmp(aux[i], "<")==0) { // entrada de um arquivo
+				j++;
+				freopen (aux[i], "r", stdin);
+			} else if (strcmp(aux[i], ">>")==0) { // saida para um arquivo com append
+				j++;
+				freopen (aux[i], "a", stdout);
+				pipe_to_file=1;
+			} else if (strcmp(aux[i], "2>")==0) { // saida de erros para um arquivo
+				j++;
+				freopen (aux[i], "w", stderr);
+			}
+			else {
+				args[k]= aux[i];
+				k++;
+			}
+			i++;
+		}
+			args[k]= NULL;
 			
+			/*if(pipe(fds)){
+				fprintf(ori_stdout,"Pipe error\n");
+			}*/
+			
+			pid2=fork();
+			if (pid2<0) {
+				fprintf(ori_stdout,"Não foi possível executar o fork(), abortando execução do comando");
+			}
+			else if (pid2==0) { //Processo filho
+				dup2(fds[0], 0);
+				close(fds[1]);
+				if (i>= parNum) {
+					exit(0);
+				}
+			}
+			else {
+				if (i>= parNum) {
+					if (pipe_to_file==0) {
+						freopen ("/dev/tty", "a", stdout);
+					}
+				}
+				else {
+					dup2(fds[1], 1);
+					close(fds[0]);
+				}
+				if (execv(args[0], args) == -1) {
+					i=0;
+					while (path[i]!='\0') {
+						if (path[i]==':') {
+							temp2[0]='\0';
+							strcat(temp2, temp);
+							strcat(temp2, "/");
+							strcat(temp2, aux[0]);
+							if (execv(temp2, args) != -1) { 
+								break;
+							}
+							temp[0]='\0';
+							i++;
+						}
+						strncat(temp, (path+i), 1);
+						i++;
+					}
+					if (path[i]=='\0') {
+						perror("ERRO");
+					}
+				}
+				exit(0);
+			}
+		
+                        
 		}
 	}
 }
@@ -166,7 +251,7 @@ int interpreter(char *v, char **trix, char *path) {
 		}
 		else {
 			runBg = 0;
-			runCommand(path, v, parNum, trix, runBg);
+			runCommand(path, v, parNum, aux, trix, runBg);
 		}
 	}
 
