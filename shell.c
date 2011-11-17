@@ -4,8 +4,11 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <signal.h>
+#include <termios.h>
+#include <errno.h>
+#include <sys/wait.h>
 
-// ANSI-Cores
+/* ANSI-Cores */
 #define C_RED		"\033[91m"
 #define C_GREEN        	"\033[92m"
 #define C_ORANGE     	"\033[93m"
@@ -16,7 +19,7 @@
 #define C_BLACK        	"\033[90m"
 #define RESTORE       	"\033[00m"
  
-// Funcoes de cores
+/* Funcoes de cores */
 void red (char string[]) {
 	printf("%s%s $%s ", C_RED, string, RESTORE);
 }
@@ -49,10 +52,11 @@ void black (char string[]) {
 	printf("%s%s $%s  ", C_BLACK, string, RESTORE);
 }
 
+/* Inicializa Vetor */
 char *initializeVector() {
 	char *v;
 
-	v = (char *) malloc(sizeof(char)*101);
+	v = (char *) malloc(sizeof(char)*1024);
 	if(v == NULL){
 		printf("memory");
 	}
@@ -60,6 +64,7 @@ char *initializeVector() {
 	return v;
 }
 
+/* Inicializa Matriz */
 char **initializeMatrix(){
 	char **trix;
 	int i;
@@ -71,6 +76,185 @@ char **initializeMatrix(){
 	return trix;
 }
 
+
+/*Flush the keys buffer*/
+void flushKeys(char *key)
+{
+	key[0] = key[1] = key[2] = 0;
+}
+
+void eraseWord(char *bufferAux)
+{
+	int i;	
+	for(i = 0; i < strlen(bufferAux); i++)
+	{
+		printf("\b");
+	}
+}
+
+/* Le e controla a linha de comando - modo nao canonico  */
+char* readLine(char *buffer, char **trix, int commandLine)
+{
+	char c;
+	int i, j, k;
+	int keyIndex = 0;
+	char key[3];
+	char bufferAux[100];
+	
+	for(i=0; i < 100; i++){
+		buffer[i] = '\0';
+		bufferAux[i] = '\0';
+	}
+
+	i = j = k = 0;
+	flushKeys(key);
+	 
+	while((c = getchar()))
+	{	
+		key[keyIndex] = c;
+		keyIndex++;
+		
+		if(keyIndex > 2)
+		{
+			keyIndex = 0;
+		}
+			
+		//Seta para cima
+		if(key[0] == 27 && key[1] == 91 && key[2] == 65)
+		{
+			//printf("CIMA");
+			flushKeys(key);
+			for(j=0; j < strlen(buffer); j++){
+				bufferAux[j] = buffer[j];
+			}
+			eraseWord(bufferAux);
+
+			if(commandLine - 1 != 0) {
+				for(j=0; trix[commandLine][j] != '\0'; j++){
+					buffer[j] = trix[commandLine][j];
+				}
+				buffer[j] = '\0';			
+			}
+
+			printf("%s", buffer);
+
+		}
+		
+		//Seta para baixo
+		else if(key[0] == 27 && key[1] == 91 && key[2] == 66)
+		{
+			//printf("BAIXO");
+			flushKeys(key);
+			eraseWord(buffer);
+		}
+		
+		//CTRL+L
+		else if(key[0] == 12 || key[1] == 12 || key[2] == 12)
+		{		
+			flushKeys(key);
+			system("clear");
+			//printf("%s", fullPrompt());
+		}
+		
+		//CTRL+C
+		else if(key[0] == 3 || key[1] == 3 || key[2] == 3)
+		{
+			flushKeys(key);
+			strcpy(buffer,"CTRLC");
+			break;
+		}
+		
+		//CTRL+D
+		else if(key[0] == 4 || key[1] == 4 || key[2] == 4)
+		{	
+			flushKeys(key);
+			strcpy(buffer,"CTRLD");
+			break;
+		}
+		
+		//CTRL+Z
+		else if(key[0] == 26 || key[1] == 26 || key[2] == 26)
+		{	
+			flushKeys(key);
+			strcpy(buffer,"CTRLZ");
+			break;
+		}
+		
+		else if(key[0] != 27 && key[0] != 12 && key[0] != 4 && key[0] != 26 && key[0] != 3) 
+		{
+			flushKeys(key);
+			//Print keyboard keys on the screen
+			if(c >= 32 && c <= 126) 
+			{
+				printf("%c", c);
+				buffer[i++] = c;
+				buffer[i] = '\0';
+			}
+			
+			//Enter 
+			else if(c == 13)
+			{
+				//Enter sem digitar nada	
+				if(buffer[0] == '\0')
+				{
+					break;
+				}
+				//Enter depois de digitar algo
+				else 
+				{
+					printf("%c\n", c);
+					break;
+				}
+
+				
+			}
+			//'Print' the backspace key
+			else if(c == 127 && i > 0)
+			{
+				printf("\b \b");	
+				i--;
+				buffer[i]='\0';
+			}
+		}	
+	
+	}
+	//buffer[i] = '\0';
+	return buffer;
+}
+
+struct termios oldtio;
+
+void setNonCanonicalMode(void) 
+{
+	struct termios newtio;
+
+	tcgetattr(0,&oldtio);
+	bzero(&newtio,sizeof(newtio));
+	
+	newtio.c_cflag = CRTSCTS | CS8 | CLOCAL | CREAD | ICANON;
+	newtio.c_iflag = IGNPAR;
+    newtio.c_oflag = OPOST;
+
+	//Muda a entrada para o modo não Canônico
+    newtio.c_lflag = 0;
+         
+    newtio.c_cc[VTIME]    = 0;
+    newtio.c_cc[VMIN]     = 1;
+        
+    tcflush(0, TCIFLUSH);
+    tcsetattr(0,TCSANOW,&newtio);
+	return;
+}
+
+void setCanonicalMode(void) 
+{
+	//Retorna as configurações antigas (modo canonico)
+	tcflush(0, TCIOFLUSH);
+    tcsetattr(0,TCSANOW,&oldtio);
+}
+
+
+/* coloca o que foi digitado em uma linha da matriz */
 int parseLine(char *v, char **trix, int commandLine) {
 	int column;
 
@@ -107,21 +291,21 @@ int runCommand(char *path, char *v, int parNum, char **aux, char **trix, int run
 			pipe_to_file=0;
 			while(i < parNum){
 			if (strcmp(aux[i], "|")==0) { // | indica o término de um comando
-				j++;
+				i++;
 				break;
 			} else if (strcmp(aux[i], ">")==0) { // saida para um arquivo
-				j++;
+				i++;
 				freopen (aux[i], "w", stdout);
 				pipe_to_file=1;
 			} else if (strcmp(aux[i], "<")==0) { // entrada de um arquivo
-				j++;
+				i++;
 				freopen (aux[i], "r", stdin);
 			} else if (strcmp(aux[i], ">>")==0) { // saida para um arquivo com append
-				j++;
+				i++;
 				freopen (aux[i], "a", stdout);
 				pipe_to_file=1;
 			} else if (strcmp(aux[i], "2>")==0) { // saida de erros para um arquivo
-				j++;
+				i++;
 				freopen (aux[i], "w", stderr);
 			}
 			else {
@@ -186,14 +370,15 @@ int runCommand(char *path, char *v, int parNum, char **aux, char **trix, int run
 	}
 }
 
+/* interpreta a linha de comando digitada */
 int interpreter(char *v, char **trix, char *path) {
 	int i, j, k, parNum, runBg;
 	char **aux, c, last, comm[51];
 	char currentPath[101];
-	/* aux eh uma matrix auxiliar */
-	/* c guarda caracteres temporariamente */
-	/* last guarda a posicao do ultimo espaco */
-
+	/* 'aux' eh uma matrix que guarda temporariamente cada comando em uma linha */
+	/* 'c' guarda caracteres temporariamente */
+	/* 'last' guarda a posicao do ultimo espaco */
+	/* 'comm' guarda o comando que será tratado no momento */
 
 	aux = (char**) malloc (sizeof(char) * 101);
 	for(i=0; i < 101; i++) {
@@ -229,9 +414,10 @@ int interpreter(char *v, char **trix, char *path) {
 		for(j=0; aux[k][j] != '\0'; j++){
 			comm[j] = aux[k][j];
 		}
-		comm[j-1] = '\0';
+		comm[j] = '\0';
 		k--;
-		
+	
+		//printf("%s",comm);	
 		/* se tiver soh 1 parametro */
 		if(parNum == 0){
 			/* pwd */
@@ -261,7 +447,8 @@ int interpreter(char *v, char **trix, char *path) {
 int main(void) {
 	int i, j, loopProgram, commandLine;
 	char c, *v, **trix, *path, *currentPath;
-	
+	int count;	
+
 	trix = initializeMatrix();
 	v = initializeVector();
 
@@ -273,6 +460,8 @@ int main(void) {
 
 	path = getenv("PATH");
 	/* printf("%s", path); */
+	
+	system("clear");
 
 	while(loopProgram) {
 		getcwd(currentPath, 1000); /* Caminho para diretorio atual */
@@ -283,22 +472,28 @@ int main(void) {
 			v[i] = '\0';
 		}		
 
-
-		for(i=0; c != '\n'; i++){
+		setNonCanonicalMode();
+		/*for(i=0; c != '\n'; i++){
 			c = getchar();
 
 			v[i] = c;
 		}	
 		v[i] = '\0';
-		c = 'x'; /* para evitar lixo */   
-
+		c = 'x';  para evitar lixo */  
+		v = readLine(v, trix, commandLine);
+		setCanonicalMode();
+		
+		//printf("%s\n", v);
 		//printf("%s", v); /* - teste - imprime a linha de comando */
+		count = strlen(v);
+		printf("%d\n", count);
 
 		parseLine(v, trix, commandLine);
 		
-		/*for(i=0; trix[commandLine][i] != '\0'; i++){
-			printf("%c", trix[commandLine][i]);
-		}*/
+		//for(i=0; trix[commandLine][i] != '\0'; i++){
+		//	printf("%c", trix[commandLine][i]);
+		//}
+		//printf("\n");
 
 		interpreter(v, trix, path);
 		
