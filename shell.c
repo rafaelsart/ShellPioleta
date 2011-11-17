@@ -18,7 +18,85 @@
 #define C_WHITE       	"\033[97m"
 #define C_BLACK        	"\033[90m"
 #define RESTORE       	"\033[00m"
- 
+
+#define BACKGROUND 0
+#define FOREGROUND 1
+/* Estrutura de job */
+typedef struct job {
+    int id;
+    pid_t pid;
+    int status; /* 0 = background; 1 = foreground
+    char parou;
+    char *comando;
+    struct job *prox;
+} job;
+
+/* Cabeça da lista ligada */
+job *primeiroJob = NULL;
+
+// Captura sinal de interrupção
+void capturaSigInt(int signum) {
+    //Variáveis   
+    pid_t foreJob;
+   
+    //Captura o sinal
+     signal(SIGINT,capturaSigInt);
+
+    //foreJob = /* IMPLEMENTAR: Pega id do processo em foreground */
+   
+    if(foreJob == -1) {
+        /* IMPLEMENTAR: Nenhum job em foreground */
+    }
+    else {
+        /* IMPLEMENTAR: Há job em foreground */
+    }
+    /* fflush */
+}
+
+// Captura sinal interativo de interrupção
+void capturaSigTSTP(int signum) {
+    //Variáveis   
+    pid_t foreJob;
+   
+    //Captura o sinal
+     signal(SIGTSTP,capturaSigTSTP);
+
+    //foreJob = /* IMPLEMENTAR: Pega id do processo em foreground */
+   
+    if(foreJob == -1) {
+        /* IMPLEMENTAR: Nenhum job em foreground */
+    }
+    else {
+        /* IMPLEMENTAR: Há job em foreground */
+    }
+    /* fflush */
+}
+
+/* Coloca job em background */
+int Job_colocaEmBackground (pid_t pid) {
+	j* = primeiroJob;
+	while (j != NULL) {
+	       if (j->pid==pid) {
+		       j->status = BACKGROUND;
+		       return 0;
+	       }
+	       j = j->prox
+	}
+}
+
+/* Coloca job em foreground */
+int Job_colocaEmForeground (pid_t pid) {
+	j* = primeiroJob;
+	while (j != NULL) {
+	       if (j->pid==pid) {
+		       j->status = FOREGROUND;
+		       return 0;
+	       }
+	       j = j->prox
+	}
+}
+     
+
 /* Funcoes de cores */
 void red (char string[]) {
 	printf("%s%s $%s ", C_RED, string, RESTORE);
