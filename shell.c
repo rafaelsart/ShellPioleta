@@ -88,7 +88,7 @@ void eraseWord(char *bufferAux)
 	int i;	
 	for(i = 0; i < strlen(bufferAux); i++)
 	{
-		printf("\b");
+		printf("\b \b");
 	}
 }
 
@@ -100,6 +100,9 @@ char* readLine(char *buffer, char **trix, int commandLine)
 	int keyIndex = 0;
 	char key[3];
 	char bufferAux[100];
+	int linesOver;
+
+	linesOver = 0;
 	
 	for(i=0; i < 100; i++){
 		buffer[i] = '\0';
@@ -119,67 +122,105 @@ char* readLine(char *buffer, char **trix, int commandLine)
 			keyIndex = 0;
 		}
 			
-		//Seta para cima
-		if(key[0] == 27 && key[1] == 91 && key[2] == 65)
+		//Seta para cima	
+		if(key[0] == 27 && key[1] == 91 && key[2] == 65 && linesOver == 0)
 		{
 			//printf("CIMA");
 			flushKeys(key);
 			for(j=0; j < strlen(buffer); j++){
 				bufferAux[j] = buffer[j];
 			}
+			bufferAux[j] = '\0';
 			eraseWord(bufferAux);
 
-			if(commandLine - 1 != 0) {
-				for(j=0; trix[commandLine][j] != '\0'; j++){
-					buffer[j] = trix[commandLine][j];
+			linesOver++;
+			if(commandLine - linesOver > 0) {
+				for(j=0; trix[commandLine-linesOver][j] != '\0'; j++){
+					buffer[j] = trix[commandLine-linesOver][j];
 				}
 				buffer[j] = '\0';			
 			}
+			i = strlen(buffer);
 
 			printf("%s", buffer);
-
 		}
-		
-		//Seta para baixo
-		else if(key[0] == 27 && key[1] == 91 && key[2] == 66)
-		{
-			//printf("BAIXO");
+		else if(key[0] == 27 && key[1] == 91 && key[2] == 65 && linesOver > 0 && commandLine-linesOver > 1) {
+			//CIMA
 			flushKeys(key);
+			
 			eraseWord(buffer);
+	
+			linesOver++;
+			for(j=0; trix[commandLine-linesOver][j] != '\0'; j++){
+				buffer[j] = trix[commandLine-linesOver][j];
+			}
+			buffer[j] = '\0';
+			i = strlen(buffer);
+
+			printf("%s", buffer);
 		}
-		
-		//CTRL+L
+		else if(key[0] == 27 && key[1] == 91 && key[2] == 66 && linesOver == 1)
+		{
+			//Seta para baixo
+			flushKeys(key);
+
+			eraseWord(buffer);
+
+			linesOver--;
+			for(j=0; bufferAux[j] != '\0'; j++){
+				buffer[j] = bufferAux[j];
+			}
+			buffer[j] = '\0';
+
+			i = strlen(buffer);
+
+			printf("%s", buffer);
+		}
+		else if(key[0] == 27 && key[1] == 91 && key[2] == 66 && linesOver > 1){
+			//Seta para baixo
+			flushKeys(key);
+
+			eraseWord(buffer);
+
+			linesOver--;
+			for(j = 0; trix[commandLine - linesOver][j] != '\0'; j++){
+				buffer[j] = trix[commandLine - linesOver][j];
+			}
+			buffer[j] = '\0';
+			
+			i = strlen(buffer);
+
+			printf("%s", buffer);
+				
+		}
 		else if(key[0] == 12 || key[1] == 12 || key[2] == 12)
 		{		
+			//CTRL+L
 			flushKeys(key);
 			system("clear");
 			//printf("%s", fullPrompt());
 		}
-		
-		//CTRL+C
 		else if(key[0] == 3 || key[1] == 3 || key[2] == 3)
 		{
+			//CTRL+C
 			flushKeys(key);
 			strcpy(buffer,"CTRLC");
 			break;
 		}
-		
-		//CTRL+D
 		else if(key[0] == 4 || key[1] == 4 || key[2] == 4)
 		{	
+			//CTRL+D
 			flushKeys(key);
 			strcpy(buffer,"CTRLD");
 			break;
-		}
-		
-		//CTRL+Z
+		}		
 		else if(key[0] == 26 || key[1] == 26 || key[2] == 26)
 		{	
+			//CTRL+Z
 			flushKeys(key);
 			strcpy(buffer,"CTRLZ");
 			break;
 		}
-		
 		else if(key[0] != 27 && key[0] != 12 && key[0] != 4 && key[0] != 26 && key[0] != 3) 
 		{
 			flushKeys(key);
@@ -218,7 +259,6 @@ char* readLine(char *buffer, char **trix, int commandLine)
 		}	
 	
 	}
-	//buffer[i] = '\0';
 	return buffer;
 }
 
@@ -486,7 +526,7 @@ int main(void) {
 		//printf("%s\n", v);
 		//printf("%s", v); /* - teste - imprime a linha de comando */
 		count = strlen(v);
-		printf("%d\n", count);
+		//printf("%d\n", count);
 
 		parseLine(v, trix, commandLine);
 		
