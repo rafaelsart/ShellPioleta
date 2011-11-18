@@ -51,7 +51,7 @@ void Signal_capturaSigInt (int signum) {
 }
 
 /*
-* Função: capturaSigInt (int signum)
+* Função: capturaSigTSTP (int signum)
 * Descrição: * IMPLEMENTAR *
 */
 /* REVISAR! */
@@ -74,6 +74,43 @@ void Signal_capturaSigTSTP (int signum) {
 	else {
 		//Envio do Sinal
 		if (kill(foreJob * (-1), SIGTSTP) == -1) perror("ERRO");
+		else {
+			//Houve mudança
+			if(waitpid(foreJob,&estado, WNOHANG | WUNTRACED)>0) {
+				//O processo foi parado
+				if (WIFSTOPPED(estado)) Jobs_colocaJobEmBackground(Jobs, foreJob);
+				else Jobs_removeJob(&Jobs, foreJob);
+			}
+		}
+	}
+	//Limpa buffer
+	fflush(NULL);
+}
+
+/*
+* Função: capturaSigCHLD (int signum)
+* Descrição: * IMPLEMENTAR *
+*/
+/* REVISAR! */
+void Signal_capturaSigCHLD (int signum) {
+	//Variáveis
+	pid_t foreJob;
+	int aux, estado;
+	//Captura o Sinal
+	signal(SIGCHLD,Signal_capturaSigCHLD);
+	//Busca Job em Foreground
+	foreJob = Jobs_retornaJobEmForeground(Jobs);
+	
+	//Não encontrado
+	if(foreJob == -1) {
+		printf("Nao ha nenhum job em Foreground!");
+		//Limpa buffer
+		fflush(NULL);
+	}
+	//Encontrado
+	else {
+		//Envio do Sinal
+		if (kill(foreJob * (-1), SIGCHLD) == -1) perror("ERRO");
 		else {
 			//Houve mudança
 			if(waitpid(foreJob,&estado, WNOHANG | WUNTRACED)>0) {

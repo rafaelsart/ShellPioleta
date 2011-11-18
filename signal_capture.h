@@ -21,8 +21,15 @@
 void Signal_capturaSigInt (int signum);
 
 /*
-* Função: capturaSigInt (int signum)
+* Função: capturaSigTSTP (int signum)
 * Descrição: * IMPLEMENTAR *
 */
 /* REVISAR! */
 void Signal_capturaSigTSTP (int signum);
+
+/*
+* Função: capturaSigCHLD (int signum)
+* Descrição: * IMPLEMENTAR *
+*/
+/* REVISAR! */
+void Signal_capturaSigCHLD (int signum);
