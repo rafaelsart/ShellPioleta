@@ -19,20 +19,34 @@
 #define C_BLACK        	"\033[90m"
 #define RESTORE       	"\033[00m"
 
-#define BACKGROUND 0
-#define FOREGROUND 1
+
+#define ERRO_SUCESSO 1
+#define ERRO_NAO_ENCONTRADO -1
+#define BACKGROUND 10
+#define FOREGROUND 11
+
 /* Estrutura de job */
 typedef struct job {
     int id;
     pid_t pid;
-    int status; /* 0 = background; 1 = foreground
-    char parou;
-    char *comando;
+    int status; /* 0 = background; 1 = foreground */
+    //char parou; /* IMPLEMENTAR */
+    //char *comando; /* IMPLEMENTAR */
     struct job *prox;
-} job;
+} Job;
 
-/* Cabeça da lista ligada */
-job *primeiroJob = NULL;
+/* Estrutura do nó-cabeça */
+typedef struct jobHeader {
+	int numJobs;
+	Job *primeiroJob;
+	Job *ultimoJob;
+} JobHeader
+
+/* Declaração do nó-cabeça */ /*IMPLEMENTAR: mover para a main*/
+JobHeader ListaJobs;
+ListaJobs->numJobs = 0;
+ListaJobs->primeiroJob = NULL;
+ListaJobs->ultimoJob = NULL;
 
 // Captura sinal de interrupção
 void capturaSigInt(int signum) {
@@ -72,30 +86,94 @@ void capturaSigTSTP(int signum) {
     /* fflush */
 }
 
-/* Coloca job em background */
-int Job_colocaEmBackground (pid_t pid) {
-	j* = primeiroJob;
-	while (j != NULL) {
-	       if (j->pid==pid) {
-		       j->status = BACKGROUND;
-		       return 0;
-	       }
-	       j = j->prox
+/* Cria ou adiciona Job à lista*/
+int Jobs_adicionaJob(JobHeader *L, pid_t pid, int status) {
+	//Variáveis
+	Job *jobAux;
+	Job *jobNovo;
+
+	//Aloca um elemento struct job
+	jobAux = (Job*) malloc(sizeof(struct job));
+
+	//Falha na alocação	
+	if(jobAux == NULL) return ERRO_NAO_ALOCADO;
+	//Alocado com sucesso	
+	else {
+		//Informações de jobAux
+		jobAux->id = L->numJobs;
+		jobAux->pid = pid;
+		jobAux->status = status;
+		jobAux->prox = NULL;
+
+		//Cria primeiro elemento
+		if(L->primeiroJob == NULL) {
+			L->primeiroJob = jobAux;
+			L->ultimoJob = jobAux;
+		}
+		//Procura o ponto de inserção
+		else {
+			jobNovo = L->ultimoJob;
+			jobNovo->prox = jobAux;
+			L->ultimoJob = jobAux;
+		}
+		L->numJobs++;
+		//Retorna SUCESSO
+		return ERRO_SUCESSO;
 	}
 }
 
-/* Coloca job em foreground */
-int Job_colocaEmForeground (pid_t pid) {
-	j* = primeiroJob;
-	while (j != NULL) {
-	       if (j->pid==pid) {
-		       j->status = FOREGROUND;
-		       return 0;
-	       }
-	       j = j->prox
+/* Remove Job da lista */
+int Jobs_removeJob(JobHeader *L, pid_t pid) {
+	//Variáveis
+	Job jobAux;
+	Job *jobInicio = L->primeiroJob;
+	//Lista não-vazia
+	if(jobInicio != NULL) {
+		/* IMPLEMENTAR */
+		//Job não encontrado
+		return ERRO_NAO_ENCONTRADO;
 	}
 }
-     
+
+/* Coloca Job em Background */
+int Jobs_colocaJobEmBackground (Job *J, pid_t pid) {
+	// Salva lista original em jobInicio
+	Job *jobInicio = J;
+	
+	while (J != NULL) {
+		//Procura Job desejado	       
+		if (J->pid==pid) {
+			//Altera status
+			j->status = BACKGROUND;
+			//Retorna SUCESSO			
+			return ERRO_SUCESSO;
+		}
+		//Percorre a lista
+		J = J->prox;
+	}
+	//Job não encontrado
+	return ERRO_NAO_ENCONTRADO;
+}
+
+/* Coloca Job em Foreground */
+int Jobs_colocaJobEmForeground (Job *J, pid_t pid) {
+	// Salva lista original em jobInicio
+	Job *jobInicio = J;
+	
+	while (J != NULL) {
+	       if (J->pid==pid) {
+		       J->status = FOREGROUND;
+		       return 0;
+	       }
+	       J = J->prox
+	}
+}
+
+/* Retorna PID do Job em Foreground */
+pid_t Jobs_retornaJobEmForeground(Job J) {
+	while (J != NULL) {
+		if(J->status == FOREGROUND) return J->pid;
+		J = J-p->prox;
 
 /* Funcoes de cores */
 void red (char string[]) {
