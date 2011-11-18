@@ -2,8 +2,6 @@
 #define ERROS_H_INCLUDED
 #endif
 
-/* IMPLEMENTAR INCLUDES */
-
 /*
 * Conjunto de definições de constantes de erro
 */

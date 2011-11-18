@@ -1,3 +1,4 @@
+//Inclusão de bibliotecas do sistema
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,394 +9,12 @@
 #include <errno.h>
 #include <sys/wait.h>
 
-/*
-* Conjunto de definições de cores seguindo a Tabela ANSI
-*/
-#define C_RED		"\033[91m"
-#define C_GREEN        	"\033[92m"
-#define C_ORANGE     	"\033[93m"
-#define C_BLUE         	"\033[94m"
-#define C_PINK         	"\033[95m"
-#define C_CYAN        	"\033[96m"
-#define C_WHITE       	"\033[97m"
-#define C_BLACK        	"\033[90m"
-#define RESTORE       	"\033[00m"
-
-/*
-* Conjunto de definições de constantes de erro
-*/
-#define ERRO_SUCESSO 1
-#define ERRO_NAO_ENCONTRADO -1
-#define ERRO_NAO_ALOCADO -2
-#define ERRO_LISTA_VAZIA -3
-
-/*
-* Conjunto de definições de statuses de Job
-*/
-#define BACKGROUND 10
-#define FOREGROUND 11
-
-/*
-* Struct: Job { id, pid, status, *prox }
-* Descrição: Define uma lista ligada de Jobs (elemento à elemento, ligados através de um ponteiro)
-* Dados:
-* 1) id: Corresponde ao número do registro da Job (ordem crescente de criação)
-* 2) pid: Corresponde ao ID de sistema da Job
-* 3) status: Define o estado da Job (Foreground ou Background)
-* 4) *prox: Aponta para o próximo elemento da Lista
-*/
-typedef struct job {
-    int id;
-    pid_t pid;
-    int status;
-    //char parou; /* IMPLEMENTAR */
-    char *comando;
-    struct job *prox;
-}Job;
-
-/*
-* Struct: JobHeader { numJobs, *primeiroJob, *ultimoJob }
-* Descrição: Define um nó-cabeça à lista ligada de Jobs
-* Dados:
-* 1) numJobs: Armazena o número de Jobs pertecentes à Lista
-* 2) *primeiroJob: Aponta para o primeiro elemento da Lista
-* 3) *ultimoJob: Aponta para o último elemento da Lista
-*/
-typedef struct jobHeader {
-	int numJobs;
-	Job *primeiroJob;
-	Job *ultimoJob;
-}JobHeader;
-
-JobHeader Jobs;
-
-/*
-* Função: Jobs_adicionaJob (JobHeader, pid_t, int)
-* Descrição: Dado o nó-cabeça da Lista de Jobs:
-* 1) Cria uma se a mesma for inexistente e insere a Job no final desta Lista
-* 2) Insere a Job no final da Lista
-*/
-int Jobs_adicionaJob (JobHeader *L, char *comando, pid_t pid, int status) {
-	//Variáveis
-	Job *jobAux;
-	Job *jobNovo;
-
-	//Aloca um elemento struct job
-	jobAux = (Job*) malloc(sizeof(struct job));
-
-	//Falha na alocação	
-	if(jobAux == NULL) return ERRO_NAO_ALOCADO;
-	//Alocado com sucesso	
-	else {
-		//Informações de jobAux
-		jobAux->id = L->numJobs;
-		jobAux->pid = pid;
-		strcpy(jobAux->comando,comando);
-		jobAux->status = status;
-		jobAux->prox = NULL;
-
-		//Cria primeiro elemento
-		if(L->primeiroJob == NULL) {
-			L->primeiroJob = jobAux;
-			L->ultimoJob = jobAux;
-		}
-		//Procura o ponto de inserção
-		else {
-			jobNovo = L->ultimoJob;
-			jobNovo->prox = jobAux;
-			L->ultimoJob = jobAux;
-		}
-		//Atualiza número de Jobs
-		L->numJobs++;
-		//Retorna SUCESSO
-		return ERRO_SUCESSO;
-	}
-}
-
-/*
-* Função: Jobs_RemoveJob (JobHeader, pid_t)
-* Descrição: Dado um PID, busca a Job correspondente e remove da Lista caso encontre
-*/
-int Jobs_removeJob (JobHeader *L, pid_t pid) {
-	//Variáveis
-	Job *jobAux;
-	Job *jobInicio;
-	//Armazena o primeiro elemento da lista 
-	jobInicio = L->primeiroJob;
-	//Lista não-vazia
-	if(jobInicio != NULL) {
-		//Remoção no início		
-		if(jobInicio->pid == pid) {
-			//Salva o elemento a ser removido
-			jobAux = jobInicio;
-			//Atualiza a Lista
-			L->primeiroJob = jobInicio->prox;
-			//Lista de tamanho 1
-			if(L->numJobs == 1) L->ultimoJob = L->primeiroJob;
-			//Libera a memória alocada
-			free(jobAux);
-		}
-		//Procura o ponto de remoção
-		else {
-			//Percorre o primeiro elemento da lista e salva o atual
-			jobAux = jobInicio;
-			jobInicio = jobInicio->prox;
-			while(jobInicio != NULL) {
-				if(jobInicio->pid == pid) {
-					//Último elemento da lista
-					if(jobInicio == L->ultimoJob) L->ultimoJob = jobAux;
-					//Atualiza a lista
-					jobAux->prox = jobInicio->prox;
-					//Libera a memória alocada
-					free(jobInicio);
-				}
-				//Percorre a lista
-				jobAux = jobInicio;
-				jobInicio = jobInicio->prox;
-			}
-			//Job não encontrado
-			return ERRO_NAO_ENCONTRADO;
-		}
-			
-	}
-	//Lista vazia
-	return ERRO_LISTA_VAZIA;
-}
-
-/*
-* Função: Jobs_colocaJobEmBackground (JobHeader, pid_t)
-* Dado um PID, busca a Job correspondente e define seu status como BACKGROUND caso encontre
-*/
-int Jobs_colocaJobEmBackground (JobHeader L, pid_t pid) {
-	//Armazena primeiro elemento da lista
-	Job *jobInicio = L.primeiroJob;
-	//Rotina de pesquisa da Lista
-	while (jobInicio != NULL) {
-		//Procura Job desejado	       
-		if (jobInicio->pid == pid) {
-			//Altera status
-			jobInicio->status = BACKGROUND;
-			//Retorna SUCESSO			
-			return ERRO_SUCESSO;
-		}
-		//Percorre a lista
-		jobInicio = jobInicio->prox;
-	}
-	//Job não encontrado
-	return ERRO_NAO_ENCONTRADO;
-}
-
-/*
-* Função: Jobs_colocaJobEmForeground (JobHeader, pid_t)
-* Dado um PID, busca a Job correspondente e define seu status como FOREGROUND caso encontre
-*/
-int Jobs_colocaJobEmForeground (JobHeader L, pid_t pid) {
-	//Armazena primeiro elemento da lista
-	Job *jobInicio = L.primeiroJob;
-	//Rotina de pesquisa da Lista
-	while (jobInicio != NULL) {
-		//Procura Job desejado	       
-		if (jobInicio->pid == pid) {
-			//Altera status
-			jobInicio->status = FOREGROUND;
-			//Retorna SUCESSO			
-			return ERRO_SUCESSO;
-		}
-		//Percorre a lista
-		jobInicio = jobInicio->prox;
-	}
-	//Job não encontrado
-	return ERRO_NAO_ENCONTRADO;
-}
-
-/* 
-* Função: Jobs_retornaJobEmForeground (JobHeader)
-* Descrição: Retorna PID do Job em Foreground
-*/
-pid_t Jobs_retornaJobEmForeground (JobHeader L) {
-	//Armazena primeiro elemento da lista
-	Job *jobInicio = L.primeiroJob;
-	//Rotina de pesquisa da Lista
-	while (jobInicio != NULL) {
-		//Procura Job desejado
-		if(jobInicio->status == FOREGROUND) return jobInicio->pid;
-		//Percorre a lista
-		jobInicio = jobInicio->prox;
-	}
-	//Job não encontrado
-	return ERRO_NAO_ENCONTRADO;
-}
-
-/*
-* Função: Jobs_imprimeJobs(JobHeader)
-* Descrição: Imprime Lista de Jobs na Tela
-*/
-void Jobs_imprimeJobs(JobHeader L) {
-	//Variáveis
-	int iContador = 1;
-	//Armazena primeiro elemento da lista
-	Job *jobInicio = L.primeiroJob;
-	//Lista vazia
-	if(jobInicio == NULL) printf("\nLista vazia!\n");
-	else {
-		//Rotina de pesquisa da Lista
-		while (jobInicio != NULL) {
-			//Imprime lista formatada
-			printf("\n");
-			//Título
-			printf("Job #%d\n", iContador);
-			//PID
-			printf("PID: %d\n", jobInicio->pid);
-			//Status
-			printf("Status: ");
-			if(jobInicio->status==BACKGROUND) printf("Background\n");
-			else if(jobInicio->status==FOREGROUND) printf("Foreground\n");
-			else printf("Desconhecido\n");
-			//Percorre a lista
-			jobInicio = jobInicio->prox;
-			//Incrementa o contador
-			iContador++;
-		}
-	}
-}
-
-/*
-* Função: capturaSigInt (int signum)
-* Descrição: * IMPLEMENTAR *
-*/
-/* REVISAR! */
-void Sinal_capturaSigInt (int signum) {
-	//Variáveis
-	pid_t foreJob;
-	int aux, estado;
-	//Captura o Sinal
-	signal(SIGINT,capturaSigInt);
-	//Busca Job em Foreground
-	foreJob = Jobs_retornaJobEmForeground(Jobs);
-	
-	//Não encontrado
-	if(foreJob == -1) {
-		printf("Nao ha nenhum job em Foreground!");
-		//Limpa buffer
-		fflush(NULL);
-	}
-	//Encontrado
-	else {
-		//Envio do Sinal
-		if (kill(pid * (-1), SIGINT) == -1) perror("ERRO");
-		else {
-			//Houve mudança
-			if(waitpid(foreJob,&estado, WNOHANG | WUNTRACED)>0) {
-				//O processo foi parado
-				if (WIFSTOPPED(estado)) Jobs_colocaJobEmBackground(Jobs, foreJob);
-				else Jobs_removeJob(&Jobs, pid);
-			}
-		}
-	}
-	//Limpa buffer
-	fflush(NULL);
-}
-
-/*
-* Função: capturaSigInt (int signum)
-* Descrição: * IMPLEMENTAR *
-*/
-/* REVISAR! */
-void Sinal_capturaSigTSTP (int signum) {
-	//Variáveis
-	pid_t foreJob;
-	int aux, estado;
-	//Captura o Sinal
-	signal(SIGTSTP,capturaSigTSTP);
-	//Busca Job em Foreground
-	foreJob = Jobs_retornaJobEmForeground(Jobs);
-	
-	//Não encontrado
-	if(foreJob == -1) {
-		printf("Nao ha nenhum job em Foreground!");
-		//Limpa buffer
-		fflush(NULL);
-	}
-	//Encontrado
-	else {
-		//Envio do Sinal
-		if (kill(pid * (-1), SIGTSTP) == -1) perror("ERRO");
-		else {
-			//Houve mudança
-			if(waitpid(foreJob,&estado, WNOHANG | WUNTRACED)>0) {
-				//O processo foi parado
-				if (WIFSTOPPED(estado)) Jobs_colocaJobEmBackground(Jobs, foreJob);
-				else Jobs_removeJob(&Jobs, pid);
-			}
-		}
-	}
-	//Limpa buffer
-	fflush(NULL);
-}
-	
-/*
-* Função: red (char[])
-* Descrição: Imprime uma string na tela, em vermelho
-*/
-void red (char string[]) {
-	printf("%s%s $%s ", C_RED, string, RESTORE);
-}
-
-/*
-* Função: green (char[])
-* Descrição: Imprime uma string na tela, em verde
-*/
-void green (char string[]) {
-	printf("%s%s $%s ", C_GREEN, string, RESTORE);
-}
-
-/*
-* Função: orange (char[])
-* Descrição: Imprime uma string na tela, em laranja
-*/
-void orange (char string[]) {
-	printf("%s%s $%s ", C_ORANGE , string, RESTORE);
-}
-
-/*
-* Função: blue (char[])
-* Descrição: Imprime uma string na tela, em azul
-*/
-void blue(char string[]) {
-	printf("%s%s $%s ", C_BLUE, string, RESTORE);
-}
-
-/*
-* Função: pink (char[])
-* Descrição: Imprime uma string na tela, em rosa
-*/
-void pink(char string[]) { 
-	printf("%s%s $%s ", C_PINK, string, RESTORE);
-}
-
-/*
-* Função: cyan (char[])
-* Descrição: Imprime uma string na tela, em ciano
-*/
-void cyan(char string[]) {
-	printf("%s%s $%s ", C_CYAN, string, RESTORE);
-}
-
-/*
-* Função: white (char[])
-* Descrição: Imprime uma string na tela, em branco
-*/
-void white (char string[]) { 
-	printf("%s%s $%s ", C_WHITE, string, RESTORE);
-}
-
-/*
-* Função: black (char[])
-* Descrição: Imprime uma string na tela, em preto
-*/
-void black (char string[]) {
-	printf("%s%s $%s  ", C_BLACK, string, RESTORE);
-}
+//Inclusão de bibliotecas próprias
+#include "colors.h"
+#include "erros.h"
+#include "jobs.h"
+#include "signal_capture.h"
+#include "canonical.h"
 
 /*
 * Função: initializeVector(void)
@@ -430,7 +49,6 @@ char **initializeMatrix(void) {
 	}
 	return trix;
 }
-
 
 /*
 * Função: flushKeys(char)
@@ -628,44 +246,6 @@ char* readLine(char *buffer, char **trix, int commandLine) {
 	return buffer;
 }
 
-struct termios oldtio;
-
-/*
-* Função: setNonCanonicalMode (void)
-* Descrição: Ativa o modo não-canônico
-*/
-void setNonCanonicalMode (void) {
-	struct termios newtio;
-
-	tcgetattr(0,&oldtio);
-	bzero(&newtio,sizeof(newtio));
-	
-	newtio.c_cflag = CRTSCTS | CS8 | CLOCAL | CREAD | ICANON;
-	newtio.c_iflag = IGNPAR;
-    	newtio.c_oflag = OPOST;
-
-	//Muda a entrada para o modo não Canônico
-    	newtio.c_lflag = 0;
-         
-    	newtio.c_cc[VTIME]    = 0;
-    	newtio.c_cc[VMIN]     = 1;
-        
-    	tcflush(0, TCIFLUSH);
-    	tcsetattr(0,TCSANOW,&newtio);
-	return;
-}
-
-/*
-* Função: setCanonicalMode (void)
-* Descrição: Ativa o modo canônico
-*/
-void setCanonicalMode(void) {
-	//Retoma as configurações antigas (canônicas)
-	tcflush(0, TCIOFLUSH);
-    	tcsetattr(0,TCSANOW,&oldtio);
-}
-
-
 /* 
 * Função: parseLine (char*, char**, int)
 * Descrição: Parseia uma Linha de Comando na Matriz
@@ -712,32 +292,32 @@ int runCommand (char *path, char *v, int parNum, char **aux, char **trix, int ru
 			k = 0;
 			//Limpa buffer
 			fflush(0);
-			pipe_to_file=0;
+			pipe_to_file = 0;
 			while(i < parNum) {
 			//Término de um comando
-			if (strcmp(aux[i], "|")==0) {
+			if (strcmp(aux[i], "|") == 0) {
 				i++;
 				break;
 			}
 			//Saída para um arquivo
-			else if (strcmp(aux[i], ">")==0) {
+			else if (strcmp(aux[i], ">") == 0) {
 				i++;
 				freopen (aux[i], "w", stdout);
 				pipe_to_file=1;
 			}
 			//Entrada de um arquivo
-			else if (strcmp(aux[i], "<")==0) {
+			else if (strcmp(aux[i], "<") == 0) {
 				i++;
 				freopen (aux[i], "r", stdin);
 			}
 			//Saída para um arquivo com append
-			else if (strcmp(aux[i], ">>")==0) {
+			else if (strcmp(aux[i], ">>") == 0) {
 				i++;
 				freopen (aux[i], "a", stdout);
 				pipe_to_file=1;
 			}
 			//Saída de erros para um arquivo
-			else if (strcmp(aux[i], "2>")==0) {
+			else if (strcmp(aux[i], "2>") == 0) {
 				i++;
 				freopen (aux[i], "w", stderr);
 			}
@@ -747,7 +327,7 @@ int runCommand (char *path, char *v, int parNum, char **aux, char **trix, int ru
 			}
 			i++;
 		}
-			args[k]= NULL;
+			args[k] = NULL;
 			
 			/*if(pipe(fds)){
 				fprintf(ori_stdout,"Pipe error\n");
@@ -776,9 +356,7 @@ int runCommand (char *path, char *v, int parNum, char **aux, char **trix, int ru
 							strcat(temp2, temp);
 							strcat(temp2, "/");
 							strcat(temp2, aux[0]);
-							if (execv(temp2, args) != -1) { 
-								break;
-							}
+							if (execv(temp2, args) != -1) break;
 							temp[0]='\0';
 							i++;
 						}
@@ -788,9 +366,7 @@ int runCommand (char *path, char *v, int parNum, char **aux, char **trix, int ru
 					if (path[i]=='\0') perror("ERRO");
 				}
 				exit(0);
-			}
-		
-                        
+			}      
 		}
 	}
 	//Processo-pai
@@ -827,9 +403,7 @@ int interpreter (char *v, char **trix, char *path) {
 		//Salva caractere atual em 'c'
 		c = v[i];
 		if(c == ' ') {
-			for(j = last; j < i; j++) {
-				aux[k][j-last] = v[j]; 
-			}
+			for(j = last; j < i; j++) aux[k][j-last] = v[j];
 			//Completa linha k da matriz 'aux' com caractere de escape: final de string
 			aux[k][j-last] = '\0';
 			//Incrementa última posição
@@ -856,9 +430,9 @@ int interpreter (char *v, char **trix, char *path) {
 		}
 		comm[j] = '\0';
 		k--;
-	
-		//printf("%s",comm);	
-		
+
+		//printf("%s",comm);
+
 		//Só há um parâmetro
 		if(parNum == 0){
 			//pwd
@@ -877,7 +451,7 @@ int interpreter (char *v, char **trix, char *path) {
 			}
 			//jobs
 			if(strcmp(comm, "jobs") == 0) {
-				imprimeJobs(Jobs);
+				Jobs_imprimeJobs(Jobs);
 			}
 			//terminate
 			if (strcmp(comm, "terminate")==0) {
@@ -913,9 +487,9 @@ int main(void) {
 	Job *Job;
 
 	//Envia sinal de interrupção
-	signal(SIGINT, Sinal_capturaSigInt);
+	signal(SIGINT, Signal_capturaSigInt);
 	//Envia sinal de parada assistida
-	signal(SIGTSTP, Sinal_capturaSigTSTP);
+	signal(SIGTSTP, Signal_capturaSigTSTP);
 	
 	//Propriedades do nó-cabeça Jobs
 	Jobs.primeiroJob = NULL;
@@ -950,7 +524,7 @@ int main(void) {
 		getcwd(currentPath, 1000);
 
 		//Imprime diretório atual em vermelho		
-		red(currentPath);
+		Color_red(currentPath);
 		
 		// Interpretando a Linha de Comando
 		for(i=0; i < 101; i++){
@@ -958,7 +532,7 @@ int main(void) {
 		}		
 
 		//Ativa o modo não-canônico
-		setNonCanonicalMode();
+		Canonical_setNonCanonicalMode();
 
 		/*for(i=0; c != '\n'; i++){
 			c = getchar();
@@ -972,7 +546,7 @@ int main(void) {
 		v = readLine(v, trix, commandLine);
 
 		//Retorna ao modo canônico
-		setCanonicalMode();
+		Canonical_setCanonicalMode();
 		
 		//printf("%s\n", v);
 		//printf("%s", v); /* - teste - imprime a linha de comando */
@@ -1000,7 +574,7 @@ int main(void) {
 
 	//Libera memória alocada em 'v'
 	free(v);
-		
+
 	//Retorno
-	return 0;
+	return 1;
 }
