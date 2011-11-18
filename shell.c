@@ -264,7 +264,7 @@ int parseLine (char *v, char **trix, int commandLine) {
 
 /*
 * Função: runCommand (char*, char&, int, char**, char**, int)
-* Descrição: * IMPLEMENTAR *
+* Descrição: * Roda os comandos não built-in *
 */
 int runCommand (char *path, char *v, int parNum, char **aux, char **trix, int runBg) {
 	//Variáveis
