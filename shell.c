@@ -20,7 +20,7 @@
 
 #define TERMINAL_NUMLINHAS 128
 #define TERMINAL_TAMANHOLINHA 1024
-#define TERMINAL_TAMANHOPALAVRA 64
+#define TERMINAL_TAMANHOPALAVRA 32
 #define PATH_TAMANHO 128
 
 
@@ -298,8 +298,7 @@ char* readLine(char *buffer, char **LinhasComando, int idLinhaComando) {
 * Descrição: Insere uma Linha de Comando no Histórico de Linhas
 */
 int Terminal_insereLinhaNoHistorico (char *LinhaComando, char **LinhasComando, int idLinhaComando) {
-	strcpy(LinhasComando[idLinhaComando],LinhaComando);	
-	
+	strcpy(LinhasComando[idLinhaComando],LinhaComando);
 	//DEPRECATED
 	//int column;
 	//for(column=0; v[column] != '\0'; column++) {
@@ -318,72 +317,77 @@ int Terminal_insereLinhaNoHistorico (char *LinhaComando, char **LinhasComando, i
 * Função: runCommand (char*, char&, int, char**, char**, int)
 * Descrição: * Roda os comandos não built-in *
 */
-int runCommand (char *Diretorio, char *v, int parNum, char **aux, char **LinhasComando, int runBg) {
+int runCommand (char *Diretorio, char *LinhaComando, int numParametros, char **Parametro, char **LinhasComando, int runBg) {
+/*
 	//Variáveis
 	char temp[1000], temp2[1000];
 	int i, k, status, pipe_to_file;
 	int fds[2];
-	pid_t pid, pid2;
+	pid_t novoProcesso, pid2;
 	char *args[100];
+	
 	//Entrada e Saída
 	FILE *ori_stdin = stdin;
 	FILE *ori_stdout = stdout;
 	FILE *ori_stderr = stderr;
 
 	//Cria novo processo
-	pid = fork();
+	novoProcesso = fork();
+
 	//Falha na criação do processo
-	if(pid<0) printf("Erro na criacao do processo.\n");
+	if(novoProcesso < 0) printf("Erro na criacao do processo.\n");
+
 	//Processo filho criado
-	else if(pid == 0) { 
+	else if(novoProcesso == 0) { 
 		//Define o ID do grupo de processos
 		setpgid(0,0);
 		i = 0;
 		//Rotina executada para cada parâmetro
-		while(i < parNum) {
+		while(i < numParametros) {
 			k = 0;
 			//Limpa buffer
 			fflush(0);
 			pipe_to_file = 0;
-			while(i < parNum) {
+			while(i < numParametros) {
 			//Término de um comando
-			if (strcmp(aux[i], "|") == 0) {
+			if (strcmp(Parametro[i], "|") == 0) {
 				i++;
 				break;
 			}
 			//Saída para um arquivo
-			else if (strcmp(aux[i], ">") == 0) {
+			else if (strcmp(Parametro[i], ">") == 0) {
 				i++;
-				freopen (aux[i], "w", stdout);
+				freopen (Parametro[i], "w", stdout);
 				pipe_to_file=1;
 			}
 			//Entrada de um arquivo
-			else if (strcmp(aux[i], "<") == 0) {
+			else if (strcmp(Parametro[i], "<") == 0) {
 				i++;
-				freopen (aux[i], "r", stdin);
+				freopen (Parametro[i], "r", stdin);
 			}
 			//Saída para um arquivo com append
-			else if (strcmp(aux[i], ">>") == 0) {
+			else if (strcmp(Parametro[i], ">>") == 0) {
 				i++;
-				freopen (aux[i], "a", stdout);
+				freopen (Parametro[i], "a", stdout);
 				pipe_to_file=1;
 			}
 			//Saída de erros para um arquivo
-			else if (strcmp(aux[i], "2>") == 0) {
+			else if (strcmp(Parametro[i], "2>") == 0) {
 				i++;
-				freopen (aux[i], "w", stderr);
+				freopen (Parametro[i], "w", stderr);
 			}
 			else {
-				args[k]= aux[i];
+				args[k]= Parametro[i];
 				k++;
 			}
 			i++;
 		}
 			args[k] = NULL;
 			
-			/*if(pipe(fds)){
-				fprintf(ori_stdout,"Pipe error\n");
-			}*/
+			//DEPRECATED
+			//if(pipe(fds)){
+			//	fprintf(ori_stdout,"Pipe error\n");
+			//}
 			
 			pid2 = fork();
 			if (pid2<0) fprintf(ori_stdout,"Não foi possível executar o fork(), abortando execução do comando");
@@ -408,7 +412,7 @@ int runCommand (char *Diretorio, char *v, int parNum, char **aux, char **LinhasC
 							temp2[0]='\0';
 							strcat(temp2, temp);
 							strcat(temp2, "/");
-							strcat(temp2, aux[0]);
+							strcat(temp2, Parametro[0]);
 							if (execv(temp2, args) != -1) break;
 							temp[0]='\0';
 							i++;
@@ -424,39 +428,39 @@ int runCommand (char *Diretorio, char *v, int parNum, char **aux, char **LinhasC
 	}
 	//Processo-pai
 	else {
-		/* IMPLEMENTAR */
+		//IMPLEMENTAR
 	}
-	/* REVISAR */
+*/
+	//Retorno
 	return 1;
 }
 
 /* 
-* Função: interpreter (char*, char**, char*)
+* Função: Terminal_InterpretaLinhaComando (char*, char**, char*)
 * Descrição: Interpreta a Linha de Comando digitada
-* Comentários adicionais:
-* A matriz de caracteres 'aux' guardará temporariamente cada comando em uma linha
-* O caractere 'c' guardará temporariamente caracteres
-* O caractere 'last' guardará temporariamente a posição do último espaço
-* O vetor de caracteres 'comm' guardará o comando que será tratado no momento
 */
 int Terminal_InterpretaLinhaComando (char *LinhaComando, char **LinhasComando, char *Diretorio) {
 	//Variáveis	
 	int numParametros, runBg, idPalavra, contadorParametros;
-	char **Parametro, Comando[TERMINAL_TAMANHOPALAVRA], *tokenPalavra;
-	char DiretorioAtual[101];
+	char **Parametro, *Comando, *tokenPalavra;
+	char DiretorioAtual[PATH_TAMANHO];
 	
-	//Aloca a matriz 'aux'
+	//Aloca a matriz de parâmetros
 	Parametro = alocaMatriz((TERMINAL_TAMANHOLINHA/TERMINAL_TAMANHOPALAVRA),TERMINAL_TAMANHOPALAVRA);
+
+	//Aloca o vetor Comando
+	Comando = alocaVetor(TERMINAL_TAMANHOPALAVRA);
 		
 	//Condições iniciais
 	idPalavra = 0;
+	contadorParametros = 0;
 	
 	//Quebra Linha de Comando em Palavras
-	tokenPalavra = alocaVetor(TERMINAL_TAMANHOPALAVRA);
+	//tokenPalavra = alocaVetor(TERMINAL_TAMANHOPALAVRA);
 	tokenPalavra = (char*) strtok(LinhaComando, " ");
 	while(tokenPalavra != NULL) {
 		//Salva palavra
-		strcpy(Parametro[idPalavra],tokenPalavra);
+		strcpy(Parametro[idPalavra], tokenPalavra);
 		//Percorre o token
 		tokenPalavra = (char*) strtok(NULL, " ");
 		//Incrementa o número de palavras
@@ -465,20 +469,20 @@ int Terminal_InterpretaLinhaComando (char *LinhaComando, char **LinhasComando, c
 		
 	//Salva número de parâmetro
 	numParametros = idPalavra;
-
+	printf("\n\n\n\n%d\n\n\n\n",numParametros);
 	//Começa o contador na última posição
+	printf("\n\n\n\n%d\n\n\n\n",contadorParametros);
 	contadorParametros = numParametros;
+	printf("passo 2.3");
 	
 	//Rotina para cada palavra
 	while(contadorParametros >= 0) {
 		//Decrementa contador
 		contadorParametros--;
-
 		//Armazena palavra
 		strcpy(Comando, Parametro[contadorParametros]);
-
-		//printf("%s",comm);
-
+	}
+		/*
 		//Primeiro parâmetro
 		if(contadorParametros == 0){
 			//pwd
@@ -494,32 +498,31 @@ int Terminal_InterpretaLinhaComando (char *LinhaComando, char **LinhasComando, c
 			}
 			//cd
 			if(strcmp(Comando, "cd") == 0) {
-				/* IMPLEMENTAR */
+				//IMPLEMENTAR
+				//if (chdir(v[1])==-1) perror("ERRO");
+	
 				//DEPRECATED
 				//printf("Escolha o diretorio\n");
-				/*
-				if (chdir(v[1])==-1) perror("ERRO");
-				*/
 			}
 			//jobs
 			if(strcmp(Comando, "jobs") == 0) {
 				Jobs_imprimeJobs(Jobs);
 			}
 			//terminate
-			if (strcmp(Comando, "terminate")==0) {
-				/* IMPLEMENTAR */
+			if (strcmp(Comando, "terminate") == 0) {
+				//IMPLEMENTAR
 			}
 			
-			if (strcmp(Comando, "stop")==0) {
-				/* IMPLEMENTAR */
+			if (strcmp(Comando, "stop") == 0) {
+				//IMPLEMENTAR
 			}
 			
-			if (strcmp(Comando, "bg")==0) {
-				/* IMPLEMENTAR */			
+			if (strcmp(Comando, "bg") == 0) {
+				//IMPLEMENTAR			
 			}
 			
-			if (strcmp(Comando, "fg")==0) {
-				/* IMPLEMENTAR */	
+			if (strcmp(Comando, "fg") == 0) {
+				//IMPLEMENTAR
 			}
 		}
 		//Demais parâmetros
@@ -527,9 +530,10 @@ int Terminal_InterpretaLinhaComando (char *LinhaComando, char **LinhasComando, c
 			//
 			runBg = 0;
 			//Roda comando
-			runCommand(Diretorio, LinhaComando, contadorParametros, Parametro, LinhasComando, runBg);
+			runCommand(Diretorio, LinhaComando, numParametros, Parametro, LinhasComando, runBg);
 		}
 	}
+	*/
 	//Retorno
 	return 0;
 }
@@ -561,12 +565,12 @@ int main(void) {
 
 	//Aloca Cada Linha de Comando
 	LinhaComando = alocaVetor(TERMINAL_TAMANHOLINHA);
-		
+
 	//v = initializeVector();
 
 	//Condições iniciais
 	loopProgram = 1;
-	idLinhaComando = 1;
+	idLinhaComando = 0;
 
 	//Aloca vetor 'Diretorio'
 	Diretorio = alocaVetor(TERMINAL_TAMANHOLINHA);
@@ -592,57 +596,29 @@ int main(void) {
 		getcwd(DiretorioAtual, 1000);
 
 		//Imprime diretório atual em vermelho		
-		Color_red(DiretorioAtual);
-		
-		//for(i=0; i < 101; i++){
-		//	v[i] = '\0';
-		//}		
+		Color_red(DiretorioAtual);	
 
 		//Ativa o modo não-canônico
 		Canonical_setNonCanonicalMode();
-
-		//DEPRECATED
-		/*for(i=0; c != '\n'; i++){
-			c = getchar();
-
-			v[i] = c;
-		}	
-		v[i] = '\0';
-		c = 'x';  para evitar lixo*/
 
 		//Lê a Linha de Comando
 		LinhaComando = readLine(LinhaComando, LinhasComando, idLinhaComando);
 
 		//Retorna ao modo canônico
-		Canonical_setCanonicalMode();
-		
-		//DEPRECATED
-		//printf("%s\n", v);
-		//printf("%s", v); /* - teste - imprime a linha de comando */
-		
-		//DEPRECATED - Armazena tamanho da Linha de Comando
-		//count = strlen(v);
-		//printf("%d\n", count);
-
-		//Parseia Linha de Comando
+		Canonical_setCanonicalMode();		
+		printf("teste");
+		//Insere Linha de Comando no Histórico
 		Terminal_insereLinhaNoHistorico(LinhaComando, LinhasComando, idLinhaComando);
-		
-		//DEPRECATED
-		//for(i=0; LinhasComando[idLinhaComando][i] != '\0'; i++){
-		//	printf("%c", LinhasComando[idLinhaComando][i]);
-		//}
-		//printf("\n");
-
+		printf("teste2");
 		//Interpreta Linha de Comando
 		Terminal_InterpretaLinhaComando(LinhaComando, LinhasComando, Diretorio);
+		printf("teste3");
 		
 		//Incrementa Linha de Comando
 		idLinhaComando++;		
 	}
-
-	//Libera memória alocada em 'v'
+	//Libera memória alocada
 	free(LinhaComando);
-
 	//Retorno
 	return 1;
 }
