@@ -469,20 +469,16 @@ int Terminal_InterpretaLinhaComando (char *LinhaComando, char **LinhasComando, c
 		
 	//Salva número de parâmetro
 	numParametros = idPalavra;
-	printf("\n\n\n\n%d\n\n\n\n",numParametros);
 	//Começa o contador na última posição
-	printf("\n\n\n\n%d\n\n\n\n",contadorParametros);
 	contadorParametros = numParametros;
-	printf("passo 2.3");
 	
 	//Rotina para cada palavra
-	while(contadorParametros >= 0) {
+	while(contadorParametros > 0) {
 		//Decrementa contador
 		contadorParametros--;
 		//Armazena palavra
 		strcpy(Comando, Parametro[contadorParametros]);
-	}
-		/*
+		
 		//Primeiro parâmetro
 		if(contadorParametros == 0){
 			//pwd
@@ -533,7 +529,6 @@ int Terminal_InterpretaLinhaComando (char *LinhaComando, char **LinhasComando, c
 			runCommand(Diretorio, LinhaComando, numParametros, Parametro, LinhasComando, runBg);
 		}
 	}
-	*/
 	//Retorno
 	return 0;
 }
@@ -605,14 +600,13 @@ int main(void) {
 		LinhaComando = readLine(LinhaComando, LinhasComando, idLinhaComando);
 
 		//Retorna ao modo canônico
-		Canonical_setCanonicalMode();		
-		printf("teste");
+		Canonical_setCanonicalMode();
+
 		//Insere Linha de Comando no Histórico
 		Terminal_insereLinhaNoHistorico(LinhaComando, LinhasComando, idLinhaComando);
-		printf("teste2");
+
 		//Interpreta Linha de Comando
 		Terminal_InterpretaLinhaComando(LinhaComando, LinhasComando, Diretorio);
-		printf("teste3");
 		
 		//Incrementa Linha de Comando
 		idLinhaComando++;		
