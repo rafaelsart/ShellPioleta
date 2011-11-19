@@ -19,7 +19,7 @@
 
 
 #define TERMINAL_NUMLINHAS 128
-#define TERMINAL_TAMANHOLINHA 256
+#define TERMINAL_TAMANHOLINHA 1024
 #define TERMINAL_TAMANHOPALAVRA 64
 #define PATH_TAMANHO 128
 
@@ -294,20 +294,22 @@ char* readLine(char *buffer, char **LinhasComando, int idLinhaComando) {
 }
 
 /* 
-* Função: parseLine (char*, char**, int)
-* Descrição: Parseia uma Linha de Comando na Matriz
+* Função: Terminal_insereLinhaNoHistorico (char*, char**, int)
+* Descrição: Insere uma Linha de Comando no Histórico de Linhas
 */
-int parseLine (char *v, char **LinhasComando, int idLinhaComando) {
-	int column;
+int Terminal_insereLinhaNoHistorico (char *LinhaComando, char **LinhasComando, int idLinhaComando) {
+	strcpy(LinhasComando[idLinhaComando],LinhaComando);	
 	
+	//DEPRECATED
+	//int column;
+	//for(column=0; v[column] != '\0'; column++) {
+	//	LinhasComando[idLinhaComando][column] = v[column];	
+	//}
+	//	
+	//LinhasComando[idLinhaComando][column] = '\0';
 	
-	for(column=0; v[column] != '\0'; column++) {
-		LinhasComando[idLinhaComando][column] = v[column];	
-	}
+	//printf("\n\nResposta do Terminal_insereLinhaNoHistorico: %s\n\n",LinhasComando[0]);
 	
-	
-	LinhasComando[idLinhaComando][column] = '\0';
-printf("\n\nResposta do parseLine: %s\n\n",LinhasComando[0]);
 	//Retorno
 	return 0;
 }
@@ -439,60 +441,28 @@ int runCommand (char *Diretorio, char *v, int parNum, char **aux, char **LinhasC
 */
 int Terminal_InterpretaLinhaComando (char *LinhaComando, char **LinhasComando, char *Diretorio) {
 	//Variáveis	
-	int numParametros, runBg, idPalavra, *tokenPalavra, contadorParametros;
-	char **Parametro, Comando[TERMINAL_TAMANHOPALAVRA];
+	int numParametros, runBg, idPalavra, contadorParametros;
+	char **Parametro, Comando[TERMINAL_TAMANHOPALAVRA], *tokenPalavra;
 	char DiretorioAtual[101];
 	
 	//Aloca a matriz 'aux'
-	Parametro = alocaMatriz(101,101);
-	//DEPRECATED
-	//aux = (char**) malloc (sizeof(char) * 101);
-	//Aloca cada vetor (linha) da matriz 'aux'
-	//for(i=0; i < 101; i++) {
-	//	aux[i] = (char *) malloc(sizeof(char) * 101);
-	//}	
-	
+	Parametro = alocaMatriz((TERMINAL_TAMANHOLINHA/TERMINAL_TAMANHOPALAVRA),TERMINAL_TAMANHOPALAVRA);
+		
 	//Condições iniciais
 	idPalavra = 0;
 	
 	//Quebra Linha de Comando em Palavras
+	tokenPalavra = alocaVetor(TERMINAL_TAMANHOPALAVRA);
 	tokenPalavra = (char*) strtok(LinhaComando, " ");
-	
 	while(tokenPalavra != NULL) {
 		//Salva palavra
 		strcpy(Parametro[idPalavra],tokenPalavra);
-		//Incrementa o número de palavras
-		idPalavra++;
 		//Percorre o token
 		tokenPalavra = (char*) strtok(NULL, " ");
+		//Incrementa o número de palavras
+		idPalavra++;
 	}
-	//DEPRECATED
-	//for(i=0; v[i] != '\0'; i++){
-		//Salva caractere atual em 'c'
-	//	c = v[i];
-	//	if(c == ' ') {
-	//		for(j = last; j < i; j++) aux[k][j-last] = v[j];
-	//		//Completa linha k da matriz 'aux' com caractere de escape: final de string
-	//		aux[k][j-last] = '\0';
-	//		//Incrementa última posição
-	//		last = i+1;
-	//		//Incrementa k
-	//		k++;
-	//	}
-	//}
-	//
-	//for(i = last; v[i] != '\0'; i++) {
-	//	aux[k][i-last] = v[i];
-	//}
-
-	//DEPRECATED
-	//Completa linha k da matriz 'aux' com caractere de escape: final de string
-	//aux[k][i-last] = '\0';
-	
-	//DEPRECATED
-	//k++;
-	//k--;
-	
+		
 	//Salva número de parâmetro
 	numParametros = idPalavra;
 
@@ -501,17 +471,11 @@ int Terminal_InterpretaLinhaComando (char *LinhaComando, char **LinhasComando, c
 	
 	//Rotina para cada palavra
 	while(contadorParametros >= 0) {
-		//Armazena palavra
-		strcpy(Comando, Parametro[contadorParametros]);
-
-		
-		//for(j=0; aux[k][j] != '\0'; j++){
-		//	comm[j] = aux[k][j];
-		//}
-		//comm[j] = '\0';
-		
 		//Decrementa contador
 		contadorParametros--;
+
+		//Armazena palavra
+		strcpy(Comando, Parametro[contadorParametros]);
 
 		//printf("%s",comm);
 
@@ -661,7 +625,7 @@ int main(void) {
 		//printf("%d\n", count);
 
 		//Parseia Linha de Comando
-		parseLine(LinhaComando, LinhasComando, idLinhaComando);
+		Terminal_insereLinhaNoHistorico(LinhaComando, LinhasComando, idLinhaComando);
 		
 		//DEPRECATED
 		//for(i=0; LinhasComando[idLinhaComando][i] != '\0'; i++){
