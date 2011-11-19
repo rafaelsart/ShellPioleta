@@ -348,7 +348,7 @@ int Terminal_rodaLinhaComando (char **caminhos, char **Parametro, int numParamet
 			for (i=0 ; i < qtdCaminhos ; i++)
 			{
 				char* fullPath;
-				fullPath = Alocacao_alocaVetor(101);
+				fullPath = Alocacao_alocaVetor(TERMINAL_TAMANHOPALAVRA);
 
 				sprintf(fullPath,"%s/%s",caminhos[i],Parametro[0]);
 				execv(fullPath, Parametro);
@@ -465,7 +465,7 @@ int Terminal_InterpretaLinhaComando (char *LinhaComando, char **LinhasComando, c
 	//Salva número de parâmetro
 	numParametros = idPalavra;
 	//Começa o contador na última posição
-	contadorParametros = numParametros-1;
+	contadorParametros = numParametros;
 	
 	/*
 	//Rotina para cada palavra
@@ -480,6 +480,8 @@ int Terminal_InterpretaLinhaComando (char *LinhaComando, char **LinhasComando, c
 		contadorParametros--;
 	}*/
 
+	runForeground = 1;
+
 	if(numParametros >=0 )
 		strcpy(Comando, Parametro[0]);
 
@@ -488,6 +490,7 @@ int Terminal_InterpretaLinhaComando (char *LinhaComando, char **LinhasComando, c
 	if(!isBuiltIn(Parametro)){
 		//Roda comando
 		Terminal_rodaLinhaComando(caminhos, Parametro, numParametros, qtdCaminhos, runForeground);
+		free(Parametro);
 		printf("Command not found: \n");
 		return EXIT_FAILURE;
 			

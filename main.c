@@ -93,7 +93,7 @@ int Terminal_rodaLinhaComando (char **caminhos, char **Parametro, int numParamet
 				char* fullPath;
 				fullPath = Alocacao_alocaVetor(101);
 
-				sprintf(fullPath,"%s/%s",caminhos[i],Parametro[0]);
+				sprintf(fullPath,"%s/%s", caminhos[i],Parametro[0]);
 				execv(fullPath, Parametro);
 				printf("\nNUH %s\n", fullPath);
 				free(fullPath);
@@ -231,8 +231,8 @@ int Terminal_InterpretaLinhaComando (char *LinhaComando, char **LinhasComando, c
 	if(!isBuiltIn(Parametro)){
 		//Roda comando
 		Terminal_rodaLinhaComando(caminhos, Parametro, numParametros, qtdCaminhos, runForeground);
-		printf("Command not found: \n");
-		return EXIT_FAILURE;
+		//printf("Command not found: \n");
+		//return EXIT_FAILURE;
 			
 	}
 	else {
