@@ -418,12 +418,12 @@ int Terminal_rodaBuiltIn(char **Parametro){
 
 	//bg
 	if (strcmp(Parametro[0], "bg") == 0) {
-		Jobs_colocaJobEmBackground(Jobs, (pid_t) Parametro[1]);
+		Jobs_colocaJobEmBackground(Jobs, Parametro[1]);
 	}
 	
 	//fg
 	if (strcmp(Parametro[0], "fg") == 0) {
-		Jobs_colocaJobEmBackground(Jobs, (pid_t) Parametro[1]);
+		Jobs_colocaJobEmBackground(Jobs, Parametro[1]);
 	}
 
 	return 0;
@@ -540,7 +540,7 @@ int main(void) {
 
 	//Aloca Diretório atual
 	DiretorioAtual = Alocacao_alocaVetor(PATH_TAMANHO*PATH_NUMDIR);
-	
+	DiretorioAtual = Path_imprimeCaminho(ListaPath);	
 	caminhos = Alocacao_alocaMatriz(TERMINAL_NUMLINHAS, TERMINAL_TAMANHOLINHA);
 
 	char* token;
