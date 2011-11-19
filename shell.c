@@ -424,6 +424,8 @@ int runCommand (char *Diretorio, char *v, int parNum, char **aux, char **LinhasC
 	else {
 		/* IMPLEMENTAR */
 	}
+	/* REVISAR */
+	return 1;
 }
 
 /* 
@@ -451,8 +453,6 @@ int Terminal_InterpretaLinhaComando (char *LinhaComando, char **LinhasComando, c
 	//}	
 	
 	//Condições iniciais
-	last = 0;
-	k = 0;
 	idPalavra = 0;
 	
 	//Quebra Linha de Comando em Palavras
