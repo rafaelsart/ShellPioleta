@@ -16,39 +16,86 @@
 #include "signal_capture.h"
 #include "canonical.h"
 
+
+
+#define TERMINAL_NUMLINHAS 128
+#define TERMINAL_TAMANHOLINHA 256
+#define TERMINAL_TAMANHOPALAVRA 64
+#define PATH_TAMANHO 128
+
+
 /*
 * Função: initializeVector(void)
 * Descrição: Aloca e retorna um vetor
 */
-char *initializeVector(void) {
-	//Variáveis	
-	char *v;
-	//Aloca o vetor 'v'
-	v = (char *) malloc(sizeof(char)*1024);
-	//Vetor não foi alocado
-	if(v == NULL){
-		printf("memory");
-	}
+//char *initializeVector(void) {
+//	//Variáveis	
+//	char *v;
+//	//Aloca o vetor 'v'
+//	v = (char *) malloc(sizeof(char)*1024);
+//	//Vetor não foi alocado
+//	if(v == NULL){
+//		printf("memory");
+//	}
+//
+//	return v;
+//}
 
-	return v;
+char* alocaVetor (int tamanhoVetor) {
+	//Variáveis
+	char *vetor;
+	//Aloca o vetor
+	vetor = (char*) malloc(sizeof(char)*tamanhoVetor);
+	//Vetor não foi alocado
+	if(vetor == NULL) {
+		/* ERRO */
+	}
+	//Retorno
+	return vetor;
+}
+
+char** alocaMatriz (int numLinhas, int tamanhoLinha) {
+	//Variáveis
+	char **matriz;
+	int iLinha;
+	//Aloca a matriz
+	matriz = (char**) malloc(sizeof(char*) * numLinhas);
+	//Matriz não foi alocada
+	if(matriz == NULL) {
+		/* ERRO_NAO_ALOCADO */
+	}
+	//Aloca vetores
+	else {
+		//Aloca cada vetor da matriz
+		for(iLinha = 0; iLinha < numLinhas; iLinha++) {
+			matriz[iLinha] = (char*) malloc(sizeof(char) * tamanhoLinha);
+			//Vetor não foi alocado
+			if(matriz[iLinha] == NULL){
+				/* ERRO_NAO_ALOCADO */
+			}
+		}
+	}
+	//Retorno
+	return matriz;	
 }
 
 /*
-* Função: initializeMatrix(void)
+* Função: initializeMaLinhasComando(void)
 * Descrição: Aloca e retorna uma matriz
 */
-char **initializeMatrix(void) {
-	//Variáveis
-	char **trix;
-	int i;
-	//Aloca a matriz 'trix'
-	trix = (char **) malloc (sizeof(char) * 101);
-	//Aloca cada vetor (linha) da matriz 'trix'
-	for(i=0; i < 101; i++){
-		trix[i] = (char *) malloc(sizeof(char) * 101);
-	}
-	return trix;
-}
+//DEPRECATED
+//char **initializeMatrix(void) {
+//	//Variáveis
+//	char **matriz;
+//	int i;
+//	//Aloca a matriz 'trix'
+//	LinhasComando = (char **) malloc (sizeof(char) * 101);
+//	//Aloca cada vetor (linha) da matriz 'trix'
+//	for(i=0; i < 101; i++){
+//		LinhasComando[i] = (char *) malloc(sizeof(char) * 101);
+//	}
+//	return LinhasComando;
+//}
 
 /*
 * Função: flushKeys(char)
@@ -73,7 +120,7 @@ void eraseWord(char *bufferAux) {
 * Função: readLine(char*, char**, int)
 * Descrição: Lê e controla a Linha de Comando, de modo não-canônico
 */
-char* readLine(char *buffer, char **trix, int commandLine) {
+char* readLine(char *buffer, char **LinhasComando, int idLinhaComando) {
 	//Variáveis
 	char c;
 	int i, j, k, keyIndex;
@@ -114,9 +161,9 @@ char* readLine(char *buffer, char **trix, int commandLine) {
 
 			linesOver++;
 
-			if(commandLine - linesOver > 0) {
-				for(j=0; trix[commandLine-linesOver][j] != '\0'; j++) {
-					buffer[j] = trix[commandLine-linesOver][j];
+			if(idLinhaComando - linesOver > 0) {
+				for(j=0; LinhasComando[idLinhaComando-linesOver][j] != '\0'; j++) {
+					buffer[j] = LinhasComando[idLinhaComando-linesOver][j];
 				}
 				//Completa a string buffer com '\0'
 				buffer[j] = '\0';			
@@ -127,7 +174,7 @@ char* readLine(char *buffer, char **trix, int commandLine) {
 			printf("%s", buffer);
 		}
 		//Cima
-		else if(key[0] == 27 && key[1] == 91 && key[2] == 65 && linesOver > 0 && commandLine-linesOver > 1) {
+		else if(key[0] == 27 && key[1] == 91 && key[2] == 65 && linesOver > 0 && idLinhaComando-linesOver > 1) {
 			//Zera buffer das teclas
 			flushKeys(key);
 			//Apaga o buffer
@@ -135,8 +182,8 @@ char* readLine(char *buffer, char **trix, int commandLine) {
 			
 			linesOver++;
 
-			for(j=0; trix[commandLine-linesOver][j] != '\0'; j++) {
-				buffer[j] = trix[commandLine-linesOver][j];
+			for(j=0; LinhasComando[idLinhaComando-linesOver][j] != '\0'; j++) {
+				buffer[j] = LinhasComando[idLinhaComando-linesOver][j];
 			}
 			//Completa a string buffer com '\0'
 			buffer[j] = '\0';
@@ -170,8 +217,8 @@ char* readLine(char *buffer, char **trix, int commandLine) {
 			eraseWord(buffer);
 
 			linesOver--;
-			for(j = 0; trix[commandLine - linesOver][j] != '\0'; j++){
-				buffer[j] = trix[commandLine - linesOver][j];
+			for(j = 0; LinhasComando[idLinhaComando - linesOver][j] != '\0'; j++){
+				buffer[j] = LinhasComando[idLinhaComando - linesOver][j];
 			}
 			//Completa a string buffer com '\0'
 			buffer[j] = '\0';
@@ -250,14 +297,17 @@ char* readLine(char *buffer, char **trix, int commandLine) {
 * Função: parseLine (char*, char**, int)
 * Descrição: Parseia uma Linha de Comando na Matriz
 */
-int parseLine (char *v, char **trix, int commandLine) {
+int parseLine (char *v, char **LinhasComando, int idLinhaComando) {
 	int column;
-
+	
+	
 	for(column=0; v[column] != '\0'; column++) {
-		trix[commandLine][column] = v[column];	
+		LinhasComando[idLinhaComando][column] = v[column];	
 	}
 	
-	trix[commandLine][column] = '\0';
+	
+	LinhasComando[idLinhaComando][column] = '\0';
+printf("\n\nResposta do parseLine: %s\n\n",LinhasComando[0]);
 	//Retorno
 	return 0;
 }
@@ -266,10 +316,10 @@ int parseLine (char *v, char **trix, int commandLine) {
 * Função: runCommand (char*, char&, int, char**, char**, int)
 * Descrição: * Roda os comandos não built-in *
 */
-int runCommand (char *path, char *v, int parNum, char **aux, char **trix, int runBg) {
+int runCommand (char *Diretorio, char *v, int parNum, char **aux, char **LinhasComando, int runBg) {
 	//Variáveis
 	char temp[1000], temp2[1000];
-	int i, j, k, status, pipe_to_file;
+	int i, k, status, pipe_to_file;
 	int fds[2];
 	pid_t pid, pid2;
 	char *args[100];
@@ -342,16 +392,17 @@ int runCommand (char *path, char *v, int parNum, char **aux, char **trix, int ru
 				if (i>= parNum) exit(0);
 			}
 			else {
-				if (i>= parNum)
+				if (i>= parNum) {
 					if (pipe_to_file==0) freopen ("/dev/tty", "a", stdout);
+				}
 				else {
 					dup2(fds[1], 1);
 					close(fds[0]);
 				}
 				if (execv(args[0], args) == -1) {
 					i=0;
-					while (path[i]!='\0') {
-						if (path[i]==':') {
+					while (Diretorio[i]!='\0') {
+						if (Diretorio[i]==':') {
 							temp2[0]='\0';
 							strcat(temp2, temp);
 							strcat(temp2, "/");
@@ -360,10 +411,10 @@ int runCommand (char *path, char *v, int parNum, char **aux, char **trix, int ru
 							temp[0]='\0';
 							i++;
 						}
-						strncat(temp, (path+i), 1);
+						strncat(temp, (Diretorio+i), 1);
 						i++;
 					}
-					if (path[i]=='\0') perror("ERRO");
+					if (Diretorio[i]=='\0') perror("ERRO");
 				}
 				exit(0);
 			}      
@@ -384,136 +435,189 @@ int runCommand (char *path, char *v, int parNum, char **aux, char **trix, int ru
 * O caractere 'last' guardará temporariamente a posição do último espaço
 * O vetor de caracteres 'comm' guardará o comando que será tratado no momento
 */
-int interpreter (char *v, char **trix, char *path) {
+int Terminal_InterpretaLinhaComando (char *LinhaComando, char **LinhasComando, char *Diretorio) {
 	//Variáveis	
-	int i, j, k, parNum, runBg;
-	char **aux, c, last, comm[51];
-	char currentPath[101];
+	int numParametros, runBg, idPalavra, *tokenPalavra, contadorParametros;
+	char **Parametro, Comando[TERMINAL_TAMANHOPALAVRA];
+	char DiretorioAtual[101];
+	
 	//Aloca a matriz 'aux'
-	aux = (char**) malloc (sizeof(char) * 101);
+	Parametro = alocaMatriz(101,101);
+	//DEPRECATED
+	//aux = (char**) malloc (sizeof(char) * 101);
 	//Aloca cada vetor (linha) da matriz 'aux'
-	for(i=0; i < 101; i++) {
-		aux[i] = (char *) malloc(sizeof(char) * 101);
-	}
+	//for(i=0; i < 101; i++) {
+	//	aux[i] = (char *) malloc(sizeof(char) * 101);
+	//}	
+	
 	//Condições iniciais
 	last = 0;
 	k = 0;
-	//Percorre o argumento
-	for(i=0; v[i] != '\0'; i++){
+	idPalavra = 0;
+	
+	//Quebra Linha de Comando em Palavras
+	tokenPalavra = (char*) strtok(LinhaComando, " ");
+	
+	while(tokenPalavra != NULL) {
+		//Salva palavra
+		strcpy(Parametro[idPalavra],tokenPalavra);
+		//Incrementa o número de palavras
+		idPalavra++;
+		//Percorre o token
+		tokenPalavra = (char*) strtok(NULL, " ");
+	}
+	//DEPRECATED
+	//for(i=0; v[i] != '\0'; i++){
 		//Salva caractere atual em 'c'
-		c = v[i];
-		if(c == ' ') {
-			for(j = last; j < i; j++) aux[k][j-last] = v[j];
-			//Completa linha k da matriz 'aux' com caractere de escape: final de string
-			aux[k][j-last] = '\0';
-			//Incrementa última posição
-			last = i+1;
-			//Incrementa k
-			k++;
-		}
-	}
+	//	c = v[i];
+	//	if(c == ' ') {
+	//		for(j = last; j < i; j++) aux[k][j-last] = v[j];
+	//		//Completa linha k da matriz 'aux' com caractere de escape: final de string
+	//		aux[k][j-last] = '\0';
+	//		//Incrementa última posição
+	//		last = i+1;
+	//		//Incrementa k
+	//		k++;
+	//	}
+	//}
+	//
+	//for(i = last; v[i] != '\0'; i++) {
+	//	aux[k][i-last] = v[i];
+	//}
 
-	for(i = last; v[i] != '\0'; i++) {
-		aux[k][i-last] = v[i];
-	}
+	//DEPRECATED
 	//Completa linha k da matriz 'aux' com caractere de escape: final de string
-	aux[k][i-last] = '\0';
-	/* REVISAR */
-	k++;
+	//aux[k][i-last] = '\0';
+	
+	//DEPRECATED
+	//k++;
+	//k--;
+	
+	//Salva número de parâmetro
+	numParametros = idPalavra;
 
-	k--;
-	//Identifica o número do parâmetro
-	parNum = k;
-	while(k >= 0){
-		for(j=0; aux[k][j] != '\0'; j++){
-			comm[j] = aux[k][j];
-		}
-		comm[j] = '\0';
-		k--;
+	//Começa o contador na última posição
+	contadorParametros = numParametros;
+	
+	//Rotina para cada palavra
+	while(contadorParametros >= 0) {
+		//Armazena palavra
+		strcpy(Comando, Parametro[contadorParametros]);
+
+		
+		//for(j=0; aux[k][j] != '\0'; j++){
+		//	comm[j] = aux[k][j];
+		//}
+		//comm[j] = '\0';
+		
+		//Decrementa contador
+		contadorParametros--;
 
 		//printf("%s",comm);
 
-		//Só há um parâmetro
-		if(parNum == 0){
+		//Primeiro parâmetro
+		if(contadorParametros == 0){
 			//pwd
-			if(strcmp(comm, "pwd") == 0) {
-				getcwd(currentPath, 1000);
-				printf("%s\n", currentPath);
+			if(strcmp(Comando, "pwd") == 0) {
+				//Recupera e imprime diretório atual
+				getcwd(DiretorioAtual, 1000);
+				printf("%s\n", DiretorioAtual);
 			}
 			//exit
-			if(strcmp(comm, "exit") == 0 || strcmp(comm, "quit") == 0) {
+			if(strcmp(Comando, "exit") == 0 || strcmp(Comando, "quit") == 0) {
+				//Sai do terminal				
 				exit(0);
 			}
 			//cd
-			if(strcmp(comm, "cd") == 0) {
-				printf("Escolha o diretorio\n");
+			if(strcmp(Comando, "cd") == 0) {
 				/* IMPLEMENTAR */
+				//DEPRECATED
+				//printf("Escolha o diretorio\n");
+				/*
+				if (chdir(v[1])==-1) perror("ERRO");
+				*/
 			}
 			//jobs
-			if(strcmp(comm, "jobs") == 0) {
+			if(strcmp(Comando, "jobs") == 0) {
 				Jobs_imprimeJobs(Jobs);
 			}
 			//terminate
-			if (strcmp(comm, "terminate")==0) {
+			if (strcmp(Comando, "terminate")==0) {
 				/* IMPLEMENTAR */
 			}
 			
-			if (strcmp(comm, "stop")==0) {
+			if (strcmp(Comando, "stop")==0) {
 				/* IMPLEMENTAR */
 			}
 			
-			if (strcmp(comm, "bg")==0) {
+			if (strcmp(Comando, "bg")==0) {
 				/* IMPLEMENTAR */			
 			}
 			
-			if (strcmp(comm, "fg")==0) {
+			if (strcmp(Comando, "fg")==0) {
 				/* IMPLEMENTAR */	
 			}
 		}
+		//Demais parâmetros
 		else {
+			//
 			runBg = 0;
-			runCommand(path, v, parNum, aux, trix, runBg);
+			//Roda comando
+			runCommand(Diretorio, LinhaComando, contadorParametros, Parametro, LinhasComando, runBg);
 		}
 	}
-
+	//Retorno
 	return 0;
 }
 
 int main(void) {
 	//Variáveis
-	int i, j, loopProgram, commandLine;
-	char c, *v, **trix, *path, *currentPath;
-	int count;	
+	int loopProgram, idLinhaComando;
+	//int count;
+	//char c;
+	char *LinhaComando, **LinhasComando;
+	char *Diretorio, *DiretorioAtual;
 	Job *Job;
 
+	/* REVISAR */	
 	//Envia sinal de interrupção
 	signal(SIGINT, Signal_capturaSigInt);
 	//Envia sinal de parada assistida
 	signal(SIGTSTP, Signal_capturaSigTSTP);
 	
-	//Propriedades do nó-cabeça Jobs
+	//Propriedades da Lista
 	Jobs.primeiroJob = NULL;
 	Jobs.ultimoJob = NULL;
 	Jobs.numJobs = 0;
 
-	//Inicializa Tratamento de Linha de Comando
-	trix = initializeMatrix();
+	//Aloca Linhas de Comando
+	LinhasComando = alocaMatriz(TERMINAL_NUMLINHAS, TERMINAL_TAMANHOLINHA);
+	
+	//LinhasComando = initializeMaLinhasComando();
 
-	//Inicializa Tratamento de Argumento
-	v = initializeVector();
+	//Aloca Cada Linha de Comando
+	LinhaComando = alocaVetor(TERMINAL_TAMANHOLINHA);
+		
+	//v = initializeVector();
 
 	//Condições iniciais
 	loopProgram = 1;
-	commandLine = 1;
+	idLinhaComando = 1;
 
-	//Aloca vetor 'path'
-	path = (char *) malloc(sizeof(char) * 101);
+	//Aloca vetor 'Diretorio'
+	Diretorio = alocaVetor(TERMINAL_TAMANHOLINHA);
 
-	//Diretório atual
-	currentPath =  (char *) malloc(sizeof(char) * 101);
-	path = getenv("PATH");
+	//Diretorio = (char *) malloc(sizeof(char) * 101);
 
-	/* printf("%s", path); */
+	//Aloca Diretório atual
+	DiretorioAtual = alocaVetor(TERMINAL_TAMANHOLINHA);
+
+	//DiretorioAtual =  (char *) malloc(sizeof(char) * 101);
+	
+	Diretorio = getenv("PATH");
+
+	//DEPRECATED
+	//printf("%s", Diretorio);
 	
 	//Limpa a tela
 	system("clear");
@@ -521,59 +625,59 @@ int main(void) {
 	//Execução da rotina principal
 	while(loopProgram) {
 		//Retorna o diretório atual
-		getcwd(currentPath, 1000);
+		getcwd(DiretorioAtual, 1000);
 
 		//Imprime diretório atual em vermelho		
-		Color_red(currentPath);
+		Color_red(DiretorioAtual);
 		
-		// Interpretando a Linha de Comando
-		for(i=0; i < 101; i++){
-			v[i] = '\0';
-		}		
+		//for(i=0; i < 101; i++){
+		//	v[i] = '\0';
+		//}		
 
 		//Ativa o modo não-canônico
 		Canonical_setNonCanonicalMode();
 
+		//DEPRECATED
 		/*for(i=0; c != '\n'; i++){
 			c = getchar();
 
 			v[i] = c;
 		}	
 		v[i] = '\0';
-		c = 'x';  para evitar lixo */
+		c = 'x';  para evitar lixo*/
 
 		//Lê a Linha de Comando
-		v = readLine(v, trix, commandLine);
+		LinhaComando = readLine(LinhaComando, LinhasComando, idLinhaComando);
 
 		//Retorna ao modo canônico
 		Canonical_setCanonicalMode();
 		
+		//DEPRECATED
 		//printf("%s\n", v);
 		//printf("%s", v); /* - teste - imprime a linha de comando */
 		
-
-		//Armazena tamanho da Linha de Comando
-		count = strlen(v);
-
+		//DEPRECATED - Armazena tamanho da Linha de Comando
+		//count = strlen(v);
 		//printf("%d\n", count);
 
 		//Parseia Linha de Comando
-		parseLine(v, trix, commandLine);
+		parseLine(LinhaComando, LinhasComando, idLinhaComando);
 		
-		//for(i=0; trix[commandLine][i] != '\0'; i++){
-		//	printf("%c", trix[commandLine][i]);
+		//DEPRECATED
+		//for(i=0; LinhasComando[idLinhaComando][i] != '\0'; i++){
+		//	printf("%c", LinhasComando[idLinhaComando][i]);
 		//}
 		//printf("\n");
 
 		//Interpreta Linha de Comando
-		interpreter(v, trix, path);
+		Terminal_InterpretaLinhaComando(LinhaComando, LinhasComando, Diretorio);
 		
 		//Incrementa Linha de Comando
-		commandLine++;			
+		idLinhaComando++;		
 	}
 
 	//Libera memória alocada em 'v'
-	free(v);
+	free(LinhaComando);
 
 	//Retorno
 	return 1;

@@ -21,7 +21,7 @@
 void Signal_capturaSigInt (int signum) {
 	//Variáveis
 	pid_t foreJob;
-	int aux, estado;
+	int estado;
 	//Captura o Sinal
 	signal(SIGINT,Signal_capturaSigInt);
 	//Busca Job em Foreground
@@ -58,7 +58,7 @@ void Signal_capturaSigInt (int signum) {
 void Signal_capturaSigTSTP (int signum) {
 	//Variáveis
 	pid_t foreJob;
-	int aux, estado;
+	int estado;
 	//Captura o Sinal
 	signal(SIGTSTP,Signal_capturaSigTSTP);
 	//Busca Job em Foreground
@@ -95,7 +95,7 @@ void Signal_capturaSigTSTP (int signum) {
 void Signal_capturaSigCHLD (int signum) {
 	//Variáveis
 	pid_t foreJob;
-	int aux, estado;
+	int estado;
 	//Captura o Sinal
 	signal(SIGCHLD,Signal_capturaSigCHLD);
 	//Busca Job em Foreground
