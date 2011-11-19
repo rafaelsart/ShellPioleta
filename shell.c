@@ -260,6 +260,7 @@ char* Terminal_processaLinha (char **LinhasComando, int idLinhaComando) {
 				}
 				else {
 					printf("%c\n",caractereDigitado);
+					return NULL;
 				}
 				break;
 			}
@@ -546,6 +547,20 @@ int main(void) {
 	//Limpa a tela
 	system("clear");
 	
+	//	caminhoInteiro = strdup(getenv("PATH"));
+	//	token = strtok(caminhoInteiro,":");
+	//	while(token != NULL)
+	//	{
+	//		caminhos[c]=strdup(token);
+	//		printf("%s\n",caminhos[c]);
+	//		c++;
+	//		token = strtok(NULL,":");
+	//	}
+	//	qtdCaminhos = c;
+
+	//Execução da rotina principal
+	while(loopProgram) {
+		//Retorna o diretório atual
 		caminhoInteiro = strdup(getenv("PATH"));
 		token = strtok(caminhoInteiro,":");
 		while(token != NULL)
@@ -557,10 +572,6 @@ int main(void) {
 		}
 		qtdCaminhos = c;
 
-	//Execução da rotina principal
-	while(loopProgram) {
-		//Retorna o diretório atual
-		
 		Diretorio = strdup(getenv("PWD"));
 
 		//Path_recuperaCaminho(&ListaPath);
@@ -582,14 +593,16 @@ int main(void) {
 		//Retorna ao modo canônico
 		Canonical_setCanonicalMode();
 
-		//Insere Linha de Comando no Histórico
-		Terminal_insereLinhaNoHistorico(LinhaComando, LinhasComando, idLinhaComando);
+		if(LinhaComando != NULL){
+			//Insere Linha de Comando no Histórico
+			Terminal_insereLinhaNoHistorico(LinhaComando, LinhasComando, idLinhaComando);
 
-		//Interpreta Linha de Comando
-		Terminal_InterpretaLinhaComando(LinhaComando, LinhasComando, caminhos, qtdCaminhos);
+			//Interpreta Linha de Comando
+			Terminal_InterpretaLinhaComando(LinhaComando, LinhasComando, caminhos, qtdCaminhos);
 		
-		//Incrementa Linha de Comando
-		idLinhaComando++;		
+			//Incrementa Linha de Comando
+			idLinhaComando++;		
+		}
 	}
 	//Libera memória alocada
 	free(LinhaComando);
