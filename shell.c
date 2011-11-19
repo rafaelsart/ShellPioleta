@@ -540,12 +540,13 @@ int main(void) {
 
 	//Aloca Diretório atual
 	DiretorioAtual = Alocacao_alocaVetor(PATH_TAMANHO*PATH_NUMDIR);
+         Path_recuperaCaminho(&ListaPath);
 	DiretorioAtual = Path_imprimeCaminho(ListaPath);	
-	caminhos = Alocacao_alocaMatriz(TERMINAL_NUMLINHAS, TERMINAL_TAMANHOLINHA);
+	//caminhos = Alocacao_alocaMatriz(TERMINAL_NUMLINHAS, TERMINAL_TAMANHOLINHA);
 
-	char* token;
-	int c = 0;
-	char* caminhoInteiro;
+	//char* token;
+	//int c = 0;
+	//char* caminhoInteiro;
 
 	//Limpa a tela
 	system("clear");
@@ -564,29 +565,30 @@ int main(void) {
 	//Execução da rotina principal
 	while(loopProgram) {
 		//Retorna o diretório atual
-		caminhoInteiro = strdup(getenv("PATH"));
-		token = strtok(caminhoInteiro,":");
-		while(token != NULL)
-		{
-			caminhos[c]=strdup(token);
-			printf("%s\n",caminhos[c]);
-			c++;
-			token = strtok(NULL,":");
-		}
-		qtdCaminhos = c;
+		//caminhoInteiro = strdup(getenv("PATH"));
+		//token = strtok(caminhoInteiro,":");
+		//while(token != NULL)
+		//{
+		//	caminhos[c]=strdup(token);
+		//	printf("%s\n",caminhos[c]);
+		//	c++;
+		//	token = strtok(NULL,":");
+		//}
+		//qtdCaminhos = c;
 
 		Diretorio = strdup(getenv("PWD"));
 
-		//Path_recuperaCaminho(&ListaPath);
-		//DiretorioAtual = Path_imprimeCaminho(ListaPath);
+		Path_recuperaCaminho(&ListaPath);
+		DiretorioAtual = Path_imprimeCaminho(ListaPath);
 	
-		char* shellLine = (char*) malloc ((strlen(Diretorio)+2) * sizeof(char));
-		sprintf(shellLine,"%s", Diretorio);
+		//char* shellLine = (char*) malloc ((strlen(Diretorio)+2) * sizeof(char));
+                  char* shellLine = (char*) malloc ((strlen(DiretorioAtual)+2) * sizeof(char));
+		//sprintf(shellLine,"%s", Diretorio);
 				
 
 		//Imprime diretório atual em vermelho		
-		Color_red(shellLine);	
-
+		Color_red(shellLine);
+                  //Color_red(DiretorioAtual);
 		//Ativa o modo não-canônico
 		Canonical_setNonCanonicalMode();
 
