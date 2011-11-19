@@ -583,7 +583,7 @@ int main(void) {
 	
 		//char* shellLine = (char*) malloc ((strlen(Diretorio)+2) * sizeof(char));
                   char* shellLine = (char*) malloc ((strlen(DiretorioAtual)+2) * sizeof(char));
-		//sprintf(shellLine,"%s", Diretorio);
+		sprintf(shellLine,"%s $", DiretorioAtual);
 				
 
 		//Imprime diretório atual em vermelho		
