@@ -4,6 +4,10 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <signal.h>
+#include <termios.h>
+#include <errno.h>
+#include <sys/wait.h>
 
 //Inclusão de bibliotecas próprias
 #include "jobs.h"
@@ -15,7 +19,7 @@
 * 1) Cria uma se a mesma for inexistente e insere a Job no final desta Lista
 * 2) Insere a Job no final da Lista
 */
-int Jobs_adicionaJob (JobHeader *L, char *comando, pid_t pid, int status) {
+int Jobs_adicionaJob (JobHeader *L, char *comando, pid_t pid, int status, int statusExecucao) {
 	//Variáveis
 	Job *jobAux;
 	Job *jobNovo;
@@ -33,6 +37,7 @@ int Jobs_adicionaJob (JobHeader *L, char *comando, pid_t pid, int status) {
 		jobAux->comando = (char*) malloc(strlen(comando)*sizeof(char));
 		strcpy(jobAux->comando,comando);
 		jobAux->status = status;
+		jobAux->statusExecucao = statusExecucao;
 		jobAux->prox = NULL;
 
 		//Cria primeiro elemento
@@ -114,15 +119,30 @@ int Jobs_colocaJobEmBackground (JobHeader L, pid_t pid) {
 	while (jobInicio != NULL) {
 		//Procura Job desejado	       
 		if (jobInicio->pid == pid) {
-			//Altera status
-			jobInicio->status = BACKGROUND;
-			//Retorna SUCESSO			
-			return ERRO_SUCESSO;
+			//O Job já terminou			
+			if(jobInicio->statusExecucao == TERMINOU) {
+				//ERRO_JOB_JA_TERMINOU
+			}
+
+			//O Job ainda existe
+			else {
+				//Altera status
+				jobInicio->status = BACKGROUND;
+				jobInicio->statusExecucao = RODANDO;
+
+				//Mata e envia SIGCONT
+				kill(jobInicio->pid, SIGCONT);
+			
+				//Retorna SUCESSO			
+				return ERRO_SUCESSO;
+			}
 		}
 		//Percorre a lista
 		jobInicio = jobInicio->prox;
 	}
-	//Job não encontrado
+	//ERRO_NAO_ENCONTRADO
+
+	//retorno
 	return ERRO_NAO_ENCONTRADO;
 }
 
@@ -137,10 +157,20 @@ int Jobs_colocaJobEmForeground (JobHeader L, pid_t pid) {
 	while (jobInicio != NULL) {
 		//Procura Job desejado	       
 		if (jobInicio->pid == pid) {
-			//Altera status
-			jobInicio->status = FOREGROUND;
-			//Retorna SUCESSO			
-			return ERRO_SUCESSO;
+			//O Job já terminou			
+			if(jobInicio->statusExecucao == TERMINOU) {
+				//ERRO_JOB_JA_TERMINOU
+			}
+
+			//O Job ainda existe
+			else {
+				//Altera status
+				jobInicio->status = FOREGROUND;
+				jobInicio->statusExecucao = RODANDO;
+
+				//Retorna SUCESSO			
+				return ERRO_SUCESSO;
+			}
 		}
 		//Percorre a lista
 		jobInicio = jobInicio->prox;
@@ -151,20 +181,20 @@ int Jobs_colocaJobEmForeground (JobHeader L, pid_t pid) {
 
 /* 
 * Função: Jobs_retornaJobEmForeground (JobHeader)
-* Descrição: Retorna PID do Job em Foreground
+* Descrição: Retorna Job em Foreground
 */
-pid_t Jobs_retornaJobEmForeground (JobHeader L) {
+Job* Jobs_retornaJobEmForeground (JobHeader L) {
 	//Armazena primeiro elemento da lista
 	Job *jobInicio = L.primeiroJob;
 	//Rotina de pesquisa da Lista
 	while (jobInicio != NULL) {
 		//Procura Job desejado
-		if(jobInicio->status == FOREGROUND) return jobInicio->pid;
+		if(jobInicio->status == FOREGROUND) return jobInicio;
 		//Percorre a lista
 		jobInicio = jobInicio->prox;
 	}
 	//Job não encontrado
-	return ERRO_NAO_ENCONTRADO;
+	return NULL;
 }
 
 /*

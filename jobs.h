@@ -12,8 +12,12 @@
 /*
 * Conjunto de definições de statuses de Job
 */
-#define BACKGROUND 10
-#define FOREGROUND 11
+#define BACKGROUND 0
+#define FOREGROUND 1
+
+#define RODANDO 1
+#define PAUSADO 0
+#define TERMINOU -1
 
 /*
 * Struct: Job { id, pid, status, *prox }
@@ -25,13 +29,13 @@
 * 4) *prox: Aponta para o próximo elemento da Lista
 */
 typedef struct job {
-    int id;
-    pid_t pid;
-    int status;
-    //char parou; /* IMPLEMENTAR */
-    char *comando;
-    struct job *prox;
-}Job;
+	int id;
+	pid_t pid;
+	int status;
+	int statusExecucao;
+	char *comando;
+	struct job *prox;
+} Job;
 
 /*
 * Struct: JobHeader { numJobs, *primeiroJob, *ultimoJob }
@@ -51,12 +55,12 @@ typedef struct jobHeader {
 JobHeader Jobs;
 
 /*
-* Função: Jobs_adicionaJob (JobHeader, pid_t, int)
+* Função: Jobs_adicionaJob (JobHeader, pid_t, int, int)
 * Descrição: Dado o nó-cabeça da Lista de Jobs:
 * 1) Cria uma se a mesma for inexistente e insere a Job no final desta Lista
 * 2) Insere a Job no final da Lista
 */
-int Jobs_adicionaJob (JobHeader *L, char *comando, pid_t pid, int status);
+int Jobs_adicionaJob (JobHeader *L, char *comando, pid_t pid, int status, int statusExecucao);
 
 /*
 * Função: Jobs_RemoveJob (JobHeader, pid_t)
@@ -78,9 +82,9 @@ int Jobs_colocaJobEmForeground (JobHeader L, pid_t pid);
 
 /* 
 * Função: Jobs_retornaJobEmForeground (JobHeader)
-* Descrição: Retorna PID do Job em Foreground
+* Descrição: Retorna Job em Foreground
 */
-pid_t Jobs_retornaJobEmForeground (JobHeader L);
+Job* Jobs_retornaJobEmForeground (JobHeader L);
 
 /*
 * Função: Jobs_imprimeJobs(JobHeader)
