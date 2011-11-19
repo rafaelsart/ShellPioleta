@@ -540,8 +540,8 @@ int main(void) {
 
 	//Aloca Diretório atual
 	DiretorioAtual = Alocacao_alocaVetor(PATH_TAMANHO*PATH_NUMDIR);
-         Path_recuperaCaminho(&ListaPath);
-	DiretorioAtual = Path_imprimeCaminho(ListaPath);	
+    //    Path_recuperaCaminho(&ListaPath);
+//	DiretorioAtual = Path_imprimeCaminho(ListaPath);	
 	//caminhos = Alocacao_alocaMatriz(TERMINAL_NUMLINHAS, TERMINAL_TAMANHOLINHA);
 
 	//char* token;
@@ -582,7 +582,7 @@ int main(void) {
 		DiretorioAtual = Path_imprimeCaminho(ListaPath);
 	
 		//char* shellLine = (char*) malloc ((strlen(Diretorio)+2) * sizeof(char));
-                  char* shellLine = (char*) malloc ((strlen(DiretorioAtual)+2) * sizeof(char));
+                char* shellLine = (char*) malloc ((strlen(DiretorioAtual)+2) * sizeof(char));
 		sprintf(shellLine,"%s $", DiretorioAtual);
 				
 

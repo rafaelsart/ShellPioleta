@@ -25,7 +25,7 @@ void Path_recuperaCaminho (PathHeader *ListaPath) {
 	if(DiretorioAtual != NULL) {
 		//Recupera o diretório atual
 		DiretorioAtual = getcwd(DiretorioAtual, PATH_NUMDIR*PATH_TAMANHO);
-
+		printf("OIII %s\n", DiretorioAtual);
 		//Quebra o PATH em diretórios
 		tokenPath = (char*) strtok(DiretorioAtual, "/");
 
