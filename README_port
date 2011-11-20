@@ -1,0 +1,23 @@
+##### Shell Pioleta #####
+
+Sistemas Operacionais 2
+Prof. Marcelo Marleta
+
+Comandos Built-in 
+Está funcionando para todas os comandos built in;
+
+Histórico
+Armazena histórico de comandos, podendo acessar através das setas
+
+Comandos Não Built in
+Está implementado, porém não está funcionando perfeitamente.
+
+Jobs
+A TAD de Jobs foi testada separadamente e funciona bem, assim como as funções que controlam a lista de Jobs.
+Porém, não foram testados com o conjunto todo do shell.
+
+Signals
+Foram implmentados parcialmente, porém não foram testados no conjunto todo do shell.
+
+Rafael Sartori
+Fernando Sergente Maia
