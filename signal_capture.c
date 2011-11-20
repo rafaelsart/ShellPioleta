@@ -52,7 +52,7 @@ void Signal_capturaSigTSTP (int signum) {
 void Signal_capturaSigCHLD (int signum, siginfo_t *info) {
 	//Variáveis
 	//pid_t foreJob;
-	int estado;
+	//int estado;
 	
 	//Coloca em espera
 	//waitpid(IMPLEMENTAR, &estado, WUNTRACED | WCONTINUED);
