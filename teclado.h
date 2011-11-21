@@ -34,5 +34,3 @@ void Terminal_apagaCaracteres(int numCaracteres);
 * Descrição: Lê e controla a Linha de Comando, de modo não-canônico
 */
 char* Terminal_processaLinha;
-
-

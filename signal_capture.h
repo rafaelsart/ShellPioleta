@@ -14,13 +14,19 @@
 #include <sys/wait.h>
 
 /*
-* Função: capturaSigTSTP (int signum)
+* Função: capturaSigTSTP (int, siginfo_t*, void)
 * Descrição: * IMPLEMENTAR *
 */
-void Signal_capturaSigTSTP (int signum);
+void Signal_capturaSigTSTP (int signum, siginfo_t *info, void *context);
 
 /*
-* Função: capturaSigCHLD (int signum, siginfo_t *info)
+* Função: capturaSigCHLD (int, siginfo_t*, void)
 * Descrição: * IMPLEMENTAR *
 */
-void Signal_capturaSigCHLD (int signum, siginfo_t *info);
+void Signal_capturaSigCHLD (int signum, siginfo_t *info, void *context);
+
+/*
+* Função: Signal_instalacao (void)
+* Descrição: Efetua a instalação dos handlers
+*/
+void Signal_Instalacao(void);

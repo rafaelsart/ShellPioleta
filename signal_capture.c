@@ -13,11 +13,19 @@
 #include "jobs.h"
 #include "signal_capture.h"
 
+//Sigactions TSTP
+static struct sigaction TSTP;
+static struct sigaction oldTSTP;
+
+//Sigactions CHLD
+static struct sigaction CHLD;
+static struct sigaction oldCHLD;
+
 /*
-* Função: capturaSigTSTP (int signum)
-* Descrição: * Captura o signal SIGTSTP *
+* Função: capturaSigTSTP (int)
+* Descrição: Captura o signal SIGTSTP
 */
-void Signal_capturaSigTSTP (int signum) {
+void Signal_capturaSigTSTP (int signum, siginfo_t *info, void *context) {
 	//Variáveis
 	Job* jobAux;
 
@@ -34,7 +42,7 @@ void Signal_capturaSigTSTP (int signum) {
 
 	//Encontrado
 	else {
-		jobAux->status = FOREGROUND;
+		jobAux->status = BACKGROUND;
 
 		if(jobAux->statusExecucao != TERMINOU) {
 			//Pausa a Job
@@ -46,17 +54,62 @@ void Signal_capturaSigTSTP (int signum) {
 }
 
 /*
-* Função: capturaSigCHLD (int signum)
-* Descrição: * IMPLEMENTAR *
+* Função: capturaSigCHLD (int, siginfo_t)
+* Descrição: Captura o signal SIGCHLD
 */
-void Signal_capturaSigCHLD (int signum, siginfo_t *info) {
-	//Variáveis
-	//pid_t foreJob;
-	//int estado;
+void Signal_capturaSigCHLD (int signum, siginfo_t *info, void *context) {
+	//Variáveis	
+	int estado;
+	Job *jobAux;
 	
 	//Coloca em espera
-	//waitpid(IMPLEMENTAR, &estado, WUNTRACED | WCONTINUED);
+	waitpid(info->si_pid, &estado, WUNTRACED | WCONTINUED);
 
-	//IMPLEMENTAR
-	//update_status(IMPLEMENTAR)
+	jobAux = Jobs_retornaJobComPID(&Jobs,info->si_pid);
+
+	if (WIFSTOPPED(estado)) {
+		jobAux->status = BACKGROUND;
+		jobAux->statusExecucao = PAUSADO;
+	}
+	else if (WIFCONTINUED(estado)) jobAux->statusExecucao = RODANDO;
+	else {
+		jobAux->status = BACKGROUND;
+		jobAux->statusExecucao = TERMINOU;
+	}
+}
+
+/*
+* Função: Signal_instalacao (void)
+* Descrição: Efetua a instalação dos handlers
+*/
+void Signal_Instalacao(void) {
+	//Configura handler TSTP
+	sigemptyset(&TSTP.sa_mask);
+	TSTP.sa_flags = SA_SIGINFO;
+	TSTP.sa_sigaction = Signal_capturaSigTSTP;
+
+	//Instala handler TSTP
+	sigaction(SIGTSTP, &TSTP, &oldTSTP);
+
+	//Configura handler CHLD
+	sigemptyset(&CHLD.sa_mask);
+	CHLD.sa_flags = SA_SIGINFO;
+	CHLD.sa_sigaction = Signal_capturaSigCHLD;
+
+	//Instala handler CHLD
+	sigaction(SIGCHLD, &CHLD, &oldCHLD);
+}
+
+/**
+ * $name children_sig_setup;
+ * $proto void children_sig_setup(void);
+ *
+ * Restaura os handlers anteriores aa execucao de sig_setup(). Para ser
+ * usada nos processos filhos do shell.
+ */
+
+void Signal_InstalacaoFilhos(void)
+{
+    sigaction(SIGTSTP, &oldTSTP, NULL);
+    sigaction(SIGCHLD, &oldCHLD, NULL);
 }

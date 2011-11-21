@@ -109,6 +109,25 @@ int Jobs_removeJob (JobHeader *L, pid_t pid) {
 }
 
 /*
+* Função: Jobs_retornaJobComPID (JobHeader, pid_t)
+* Descrição: Retorna a Job com o PID buscado
+*/
+Job* Jobs_retornaJobComPID (JobHeader *L, pid_t pid) {
+	//Variáveis	
+	Job *jobAux;
+	//Copia a lista
+	jobAux = L->primeiroJob;
+	//Percorre a lista
+	while(jobAux != NULL) {
+		if(jobAux->pid == pid) return jobAux;
+		jobAux = jobAux->prox;
+	}
+	//Não encontrado
+	return NULL;
+}
+	
+
+/*
 * Função: Jobs_colocaJobEmBackground (JobHeader, pid_t)
 * Dado um PID, busca a Job correspondente e define seu status como BACKGROUND caso encontre
 */
