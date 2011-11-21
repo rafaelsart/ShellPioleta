@@ -14,7 +14,6 @@
 */
 #define BACKGROUND 0
 #define FOREGROUND 1
-
 #define RODANDO 1
 #define PAUSADO 0
 #define TERMINOU -1
@@ -68,6 +67,11 @@ int Jobs_adicionaJob (JobHeader *L, char *comando, pid_t pid, int status, int st
 */
 int Jobs_removeJob (JobHeader *L, pid_t pid);
 
+/*
+* Função: Jobs_retornaJobComPID (JobHeader, pid_t)
+* Descrição: Retorna a Job com o PID buscado
+*/
+Job* Jobs_retornaJobComPID (JobHeader *L, pid_t pid);
 /*
 * Função: Jobs_colocaJobEmBackground (JobHeader, pid_t)
 * Dado um PID, busca a Job correspondente e define seu status como BACKGROUND caso encontre

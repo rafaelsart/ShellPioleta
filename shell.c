@@ -12,9 +12,9 @@
 
 //Inclusão de bibliotecas próprias
 #include "colors.h"
+#include "tela.h"
 #include "erros.h"
 #include "alocacao.h"
-#include "path.h"
 #include "jobs.h"
 #include "signal_capture.h"
 #include "canonical.h"
@@ -32,36 +32,6 @@
 /* Path */
 char **Path;
 
-/*
-* Função: flushKeys(char)
-* Descrição: Limpa o buffer reservado para determinadas teclas
-*/
-void flushKeys(char *tecla) {
-	tecla[0] = tecla[1] = tecla[2] = 0;
-}
-
-/*
-* Função: Terminal_apagaCaracteres(int)
-* Descrição: Apaga conjuntos de caracteres do buffer impresso em tela
-*/
-void Terminal_apagaCaracteres(int numCaracteres) {
-	//Variáveis
-	int i;
-	//Rotina
-	for(i = 0; i < numCaracteres; i++) printf("\b \b");
-}
-
-/*
-* Função: Terminal_imprimeShell(char*, char*)
-* Descrição: Imprime em vermelho o nome de usuário e o diretório atual
-*/
-void Terminal_imprimeShell(char* Usuario, char* Diretorio) {
-	char* shellLine = (char*) malloc ((strlen(Usuario)+strlen(Diretorio)+2) * sizeof(char));
-	sprintf(shellLine,"%s:~%s", Usuario, Diretorio);	
-	//Imprime diretório atual em vermelho		
-	Color_red(shellLine);
-}
-
 /* 
 * Função: Terminal_insereLinhaNoHistorico (char*, char**, int)
 * Descrição: Insere uma Linha de Comando no Histórico de Linhas
@@ -73,6 +43,214 @@ int Terminal_insereLinhaNoHistorico (char *LinhaComando, char **LinhasComando, i
 	return 0;
 }
 
+int Comando_isBuiltIn(char **Parametro){
+	if(strcmp(Parametro[0], "cd") == 0){
+		return 1;
+	}
+
+	if(strcmp(Parametro[0], "exit") == 0){
+		return 1;
+	}
+	
+	if(strcmp(Parametro[0], "bg") == 0){
+		return 1;
+	}
+
+	if(strcmp(Parametro[0], "fg") == 0){
+		return 1;
+	}
+	
+	if(strcmp(Parametro[0], "jobs") == 0){
+
+		return 1;
+	}
+
+	if(strcmp(Parametro[0], "quit") == 0){
+		return 1;
+	}
+
+	return 0;
+}
+
+void Comando_rodaBuiltIn(char **Parametro){
+	//puts(Parametro[1]);
+	//exit
+	if(strcmp(Parametro[0], "exit") == 0 || strcmp(Parametro[0], "quit") == 0) {
+		//Sai do terminal				
+		exit(0);
+	}
+	//cd
+	if(strcmp(Parametro[0], "cd") == 0) {
+		if(Parametro[1] != NULL)		
+			if(strcmp(Parametro[1],"") != 0)
+						if (chdir(Parametro[1]) == -1) perror("ERRO");
+	}
+	//jobs
+	if(strcmp(Parametro[0], "jobs") == 0) {
+		Jobs_imprimeJobs(Jobs);
+	}
+
+	//bg
+	if (strcmp(Parametro[0], "bg") == 0) {
+		//int bgId;
+		//sprintf(bgId, "%s", Parametro[1]);
+		//Jobs_colocaJobEmBackground(Jobs, bgId);
+	}
+	
+	//fg
+	if (strcmp(Parametro[0], "fg") == 0) {
+		//int fgId;
+		//sprintf(fgId, "%s", Parametro[1]);
+		//Jobs_colocaJobEmBackground(Jobs, fgId);
+	}
+}
+
+/*
+* Função: Comando_rodaLinhaComando (char*, char**, int, int)
+* Descrição: Roda os comandos não built-in
+*/
+int Comando_rodaLinhaComando (char **Parametro, int runForeground) {
+	//Variáveis
+	pid_t pidNovoProcesso;
+	char *tokenPath;
+	int iContador, iPath = 0;
+
+	//char **tokenized = get_command_tokens(commands[i], &foreground);
+
+	//Cria processo-filho
+	pidNovoProcesso = fork();
+
+	//Falha na criação
+	if(pidNovoProcesso == -1) {
+		perror("Nao foi possivel criar novo processo\n");
+		exit(0);
+	}
+	//Processo ativo
+	else if(pidNovoProcesso == 0) {
+		//Aloca caminho
+		Path = (char**) malloc(((strlen(getenv("PATH"))/2)+2)*sizeof(char*));
+
+		//Quebra PATH em diretórios
+		tokenPath = (char*) strtok(getenv("PATH"), ":");
+
+		while(tokenPath != NULL) {
+			//Aloca caminho
+			Path[iPath] = (char*) malloc(strlen(tokenPath)/*+strlen(Parametro[0])*/+1);
+			strcpy(Path[iPath],"");
+			//Salva caminho
+			strcat(Path[iPath], tokenPath);
+			//Percorre o token
+			tokenPath = (char*) strtok(NULL, ":");
+			//Incrementa o número de palavras
+			iPath++;
+		}
+		//Executa comando
+		for(iContador=0;iContador<iPath;iContador++) {
+			char Caminho[(strlen(Path[iContador])+strlen(*Parametro)+2)];
+			strcpy(Caminho,Path[iContador]);
+			strcat(Caminho,"/");
+			strcat(Caminho, *Parametro);
+			//printf("Parametro[%d]: %s\n",iContador,Parametro[iContador]);
+			execv(Caminho, Parametro);
+		}
+		printf("\n\n");
+		Tela_apagaCaracteres(100);
+		fprintf(stderr, "\nComando nao reconhecido.\n\n");
+		exit(EXIT_FAILURE);
+	}
+	else {
+		//Define ID do grupo de processos
+		setpgid(pidNovoProcesso,0);
+
+		//Cria um job e adiciona à lista
+		Jobs_adicionaJob(&Jobs, Parametro[0], pidNovoProcesso, FOREGROUND, RODANDO);
+
+		if(runForeground == FOREGROUND) waitpid(pidNovoProcesso, NULL, 0);
+
+	}
+
+	free(Parametro);
+
+	//Retorno
+	return 1;
+}
+
+/* 
+* Função: Terminal_InterpretaLinhaComando (char*, char**, char*)
+* Descrição: Interpreta a Linha de Comando digitada
+*/
+void Terminal_InterpretaLinhaComando (char *LinhaComando, char **LinhasComando) {
+	//Variáveis	
+	int runForeground, idPalavra, iContador;
+	char **Parametro, **ParametroAux, *Comando, *tokenPalavra, *tokenPalavraAux, *LinhaComandoAux, *LinhaComandoAux2;
+	
+	//Aloca a matriz de parâmetros
+	//Parametro = Alocacao_alocaMatriz((TERMINAL_TAMANHOLINHA),TERMINAL_TAMANHOPALAVRA);
+
+	//Aloca o vetor Comando
+	Comando = Alocacao_alocaVetor(TERMINAL_TAMANHOPALAVRA);
+		
+	//Condições iniciais
+	idPalavra = 0;
+
+	//Recupera o último caractere da linha de comando para definir se roda em FOREGROUND ou BACKGROUND
+	if(LinhaComando[strlen(LinhaComando)-1] == '&') {
+		runForeground = 0;
+		//Remove ' &' da linha de comando
+		LinhaComandoAux = malloc((strlen(LinhaComando)-2)*sizeof(char));
+		strcpy(LinhaComandoAux,LinhaComando);
+		strncpy(LinhaComando,LinhaComandoAux,strlen(LinhaComando)-2);
+	}
+	else runForeground = 1;
+
+	LinhaComandoAux2 = (char*) malloc(strlen(LinhaComando)*sizeof(char));
+	strcpy(LinhaComandoAux2,LinhaComando);
+	
+	//Quebra Linha de Comando em Palavras
+	tokenPalavraAux = (char*) strtok(LinhaComandoAux2, " ");
+	while(tokenPalavraAux != NULL) {
+		//Percorre o token
+		tokenPalavraAux = (char*) strtok(NULL, " ");
+
+		//Incrementa o número de palavras
+		idPalavra++;
+	}
+	
+	Parametro = malloc(idPalavra*sizeof(char*));
+	
+	idPalavra = 0;
+
+	//Quebra Linha de Comando em Palavras
+	tokenPalavra = (char*) strtok(LinhaComando, " ");
+	while(tokenPalavra != NULL) {
+		//Aloca parâmetro
+		Parametro[idPalavra] = malloc(strlen(tokenPalavra)*sizeof(char));
+		//Salva palavra
+		strcpy(Parametro[idPalavra], tokenPalavra);
+
+		//Percorre o token
+		tokenPalavra = (char*) strtok(NULL, " ");
+
+		//Incrementa o número de palavras
+		idPalavra++;
+	}
+
+	if(idPalavra >=0 ) strcpy(Comando, Parametro[0]);
+
+	if(!Comando_isBuiltIn(Parametro)){
+		//Roda comando
+		Comando_rodaLinhaComando(Parametro, runForeground);
+		return;
+			
+	}
+	else Comando_rodaBuiltIn(Parametro);
+
+	//Libera memória alocada
+	free(tokenPalavra);
+	for(iContador=0;iContador<idPalavra;iContador++) free(Parametro[iContador]);
+	free(Parametro);
+}
+
 /*
 * Função: Terminal_processaLinha (char*, char**, int)
 * Descrição: Lê e controla a Linha de Comando, de modo não-canônico
@@ -81,12 +259,14 @@ char* Terminal_processaLinha (char **LinhasComando, int idLinhaComando) {
 	//Variáveis
 	int keyIndex, contadorTeclas, linesOver;
 	char caractereDigitado, tecla[3], *LinhaComandoAux, *LinhaComando;
+	char *Diretorio, *Usuario;
 
 	//Aloca a Linha de Comando Auxiliar
 	LinhaComandoAux = Alocacao_alocaVetor(TERMINAL_TAMANHOLINHA);
 
-	if(LinhaComando != NULL) free(LinhaComando);	
+	//if(LinhaComando != NULL) free(LinhaComando);	
 	
+	//Aloca a Linha de Comando
 	LinhaComando = Alocacao_alocaVetor(TERMINAL_TAMANHOLINHA);
 
 	//Reseta a Linha de Comando
@@ -95,13 +275,16 @@ char* Terminal_processaLinha (char **LinhasComando, int idLinhaComando) {
 	//Reseta a Linha de Comando Auxiliar
 	strcpy(LinhaComandoAux, "");
 
+	//Aloca Diretório
+	Diretorio = Alocacao_alocaVetor(TERMINAL_TAMANHODIRETORIO);
+
 	//Condições iniciais
 	keyIndex = 0;
 	linesOver = 0;
 	contadorTeclas = 0;
 
 	//Zera buffer das teclas
-	flushKeys(tecla);
+	Tela_flushKeys(tecla);
 
 	while ((caractereDigitado = getchar())) {
 		//Armazena a tecla
@@ -116,7 +299,7 @@ char* Terminal_processaLinha (char **LinhasComando, int idLinhaComando) {
 		//Tecla CIMA
 		if(tecla[0] == 27 && tecla[1] == 91 && tecla[2] == 65) {
 			//Zera buffer das teclas
-			flushKeys(tecla);
+			Tela_flushKeys(tecla);
 
 			//Linha atual
 			if(linesOver == 0) {
@@ -124,7 +307,7 @@ char* Terminal_processaLinha (char **LinhasComando, int idLinhaComando) {
 				strcpy(LinhaComandoAux,LinhaComando);
 
 				//Apaga o buffer escrito na tela
-				Terminal_apagaCaracteres(strlen(LinhaComandoAux));
+				Tela_apagaCaracteres(strlen(LinhaComandoAux));
 
 				//Atualiza o número de linhas além da atual
 				linesOver++;
@@ -150,7 +333,7 @@ char* Terminal_processaLinha (char **LinhasComando, int idLinhaComando) {
 			//Linha anterior
 			else if(linesOver > 0 && idLinhaComando-linesOver > 0) {
 				//Apaga o buffer escrito na tela
-				Terminal_apagaCaracteres(strlen(LinhaComando));
+				Tela_apagaCaracteres(strlen(LinhaComando));
 
 				//Atualiza o número de linhas além da atual
 				linesOver++;
@@ -169,10 +352,10 @@ char* Terminal_processaLinha (char **LinhasComando, int idLinhaComando) {
 		//Tecla BAIXO
 		else if(tecla[0] == 27 && tecla[1] == 91 && tecla[2] == 66) {
 			//Zera buffer das teclas
-			flushKeys(tecla);
+			Tela_flushKeys(tecla);
 
 			//Apaga o buffer escrito na tela
-			Terminal_apagaCaracteres(strlen(LinhaComando));
+			Tela_apagaCaracteres(strlen(LinhaComando));
 			
 			//Penúltima linha
 			if(linesOver == 1) {
@@ -205,18 +388,24 @@ char* Terminal_processaLinha (char **LinhasComando, int idLinhaComando) {
 		//Comando CTRL+L
 		else if((tecla[0] == 12 || tecla[1] == 12 || tecla[2] == 12)) {
 			//Zera buffer das teclas
-			flushKeys(tecla);
+			Tela_flushKeys(tecla);
 
 			//Limpa a tela
-			system("clear");
+			//system("clear");//
+			puts("\n\n\n\n\n\n\n");
+			Tela_apagaCaracteres(100);
+			
 
-			//IMPLEMENTAR
-			Color_red(Path_imprimeCaminho(ListaPath));
+			Usuario = strdup(getenv("USER"));
+
+			getcwd(Diretorio,TERMINAL_TAMANHODIRETORIO*sizeof(char));
+		
+                	Tela_imprimeShell(Usuario,Diretorio);
 		}
 		//Comando CTRL+C
 		else if((tecla[0] == 3 || tecla[1] == 3 || tecla[2] == 3) && contadorTeclas == 0) {
 			//Zera buffer das teclas
-			flushKeys(tecla);
+			Tela_flushKeys(tecla);
 
 			//IMPLEMENTAR
 			//Envia sinal de interrupção
@@ -225,8 +414,8 @@ char* Terminal_processaLinha (char **LinhasComando, int idLinhaComando) {
 
 		//Comando CTRL+D
 		else if((tecla[0] == 4 || tecla[1] == 4 || tecla[2] == 4) && contadorTeclas == 0) {
-			//Zera buffer das teclas
-			flushKeys(tecla);
+			//Zera buffer das teclas		
+			Tela_flushKeys(tecla);
 			
 			//IMPLEMENTAR
 			//Envia sinal de interrupção
@@ -236,7 +425,7 @@ char* Terminal_processaLinha (char **LinhasComando, int idLinhaComando) {
 		//Comando CTRL+Z		
 		else if((tecla[0] == 26 || tecla[1] == 26 || tecla[2] == 26) && contadorTeclas == 0) {
 			//Zera buffer das teclas
-			flushKeys(tecla);
+			Tela_flushKeys(tecla);
 
 			//IMPLEMENTAR
 			//Envia processo atual para BACKGROUND
@@ -246,7 +435,7 @@ char* Terminal_processaLinha (char **LinhasComando, int idLinhaComando) {
 		//Nenhuma tecla acima
 		else if(tecla[0] != 27 && tecla[0] != 12 && tecla[0] != 4 && tecla[0] != 26 && tecla[0] != 3) {
 			//Zera buffer das teclas
-			flushKeys(tecla);
+			Tela_flushKeys(tecla);
 
 			//Caracteres imprimíveis
 			if(caractereDigitado >= 32 && caractereDigitado <= 126) {			
@@ -282,7 +471,7 @@ char* Terminal_processaLinha (char **LinhasComando, int idLinhaComando) {
 			//Backspace
 			else if(caractereDigitado == 127 && contadorTeclas > 0) {
 				//Apaga um caractere da tela
-				Terminal_apagaCaracteres(1);
+				Tela_apagaCaracteres(1);
 				
 				//Atualiza contador de teclas digitadas	
 				contadorTeclas--;
@@ -297,201 +486,12 @@ char* Terminal_processaLinha (char **LinhasComando, int idLinhaComando) {
 	return LinhaComando;
 }
 
-/*
-* Função: Terminal_rodaLinhaComando (char*, char**, int, int)
-* Descrição: Roda os comandos não built-in
-*/
-int Terminal_rodaLinhaComando (char **Parametro, int runForeground) {
-	//Variáveis
-	pid_t pidNovoProcesso;
-	char *tokenPath;
-	int iContador, iPath = 0;
-
-	//char **tokenized = get_command_tokens(commands[i], &foreground);
-
-	//Cria processo-filho
-	pidNovoProcesso = fork();
-
-	//Falha na criação
-	if(pidNovoProcesso == -1) {
-		perror("Nao foi possivel criar novo processo\n");
-		exit(0);
-	}
-	//Processo ativo
-	else if(pidNovoProcesso == 0) {
-		//Aloca caminho
-		Path = (char**) malloc(((strlen(getenv("PATH"))/2)+2)*sizeof(char*));
-
-		//Quebra PATH em diretórios
-		tokenPath = (char*) strtok(getenv("PATH"), ":");
-
-		while(tokenPath != NULL) {
-			//Aloca caminho
-			Path[iPath] = (char*) malloc(strlen(tokenPath)/*+strlen(Parametro[0])*/+1);
-			strcpy(Path[iPath],"");
-			//Salva caminho
-			strcat(Path[iPath], tokenPath);
-			//Percorre o token
-			tokenPath = (char*) strtok(NULL, ":");
-			//Incrementa o número de palavras
-			iPath++;
-		}
-
-		//Insere comando
-		
-
-		//Executa comando
-		for(iContador=0;iContador<iPath;iContador++) {
-			char Caminho[(strlen(Path[iContador])+strlen(*Parametro)+2)];
-			strcpy(Caminho,Path[iContador]);
-			strcat(Caminho,"/");
-			strcat(Caminho, *Parametro);
-			printf("Parametro[%d]: %s\n",iContador,Parametro[iContador]);
-			execv(Caminho, Parametro);
-		}
-		fprintf(stderr, "\n\tComando nao reconhecido.\n\n");
-		exit(EXIT_FAILURE);
-	}
-	else {
-		//Define ID do grupo de processos
-		setpgid(pidNovoProcesso,0);
-		
-		//Cria um job
-		
-
-		//Adiciona à lista de jobs
-		Jobs_adicionaJob(&Jobs, Parametro[0], pidNovoProcesso, FOREGROUND, RODANDO);
-
-		if(runForeground == FOREGROUND) waitpid(pidNovoProcesso, NULL, 0);
-
-	}
-
-	free(Parametro);
-
-	//Retorno
-	return 1;
-}
-
-
-int isBuiltIn(char **Parametro){
-	if(strcmp(Parametro[0], "cd") == 0){
-		return 1;
-	}
-
-	if(strcmp(Parametro[0], "exit") == 0){
-		return 1;
-	}
-	
-	if(strcmp(Parametro[0], "bg") == 0){
-		return 1;
-	}
-
-	if(strcmp(Parametro[0], "fg") == 0){
-		return 1;
-	}
-	
-	if(strcmp(Parametro[0], "jobs") == 0){
-
-		return 1;
-	}
-
-	if(strcmp(Parametro[0], "quit") == 0){
-		return 1;
-	}
-
-	return 0;
-}
-
-void Terminal_rodaBuiltIn(char **Parametro){
-
-	//exit
-	if(strcmp(Parametro[0], "exit") == 0 || strcmp(Parametro[0], "quit") == 0) {
-		//Sai do terminal				
-		exit(0);
-	}
-	//cd
-	if(strcmp(Parametro[0], "cd") == 0) {
-		if(strcmp(Parametro[1],"") != 0)
-			if (chdir(Parametro[1]) == -1) perror("ERRO");
-	}
-	//jobs
-	if(strcmp(Parametro[0], "jobs") == 0) {
-		Jobs_imprimeJobs(Jobs);
-	}
-
-	//bg
-	if (strcmp(Parametro[0], "bg") == 0) {
-		//int bgId;
-		//sprintf(bgId, "%s", Parametro[1]);
-		//Jobs_colocaJobEmBackground(Jobs, bgId);
-	}
-	
-	//fg
-	if (strcmp(Parametro[0], "fg") == 0) {
-		//int fgId;
-		//sprintf(fgId, "%s", Parametro[1]);
-		//Jobs_colocaJobEmBackground(Jobs, fgId);
-	}
-}
-
-/* 
-* Função: Terminal_InterpretaLinhaComando (char*, char**, char*)
-* Descrição: Interpreta a Linha de Comando digitada
-*/
-void Terminal_InterpretaLinhaComando (char *LinhaComando, char **LinhasComando) {
-	//Variáveis	
-	int numParametros, runForeground, idPalavra;
-	char **Parametro, *Comando, *tokenPalavra;
-	
-	//Aloca a matriz de parâmetros
-	Parametro = Alocacao_alocaMatriz((TERMINAL_TAMANHOLINHA/TERMINAL_TAMANHOPALAVRA),TERMINAL_TAMANHOPALAVRA);
-
-	//Aloca o vetor Comando
-	Comando = Alocacao_alocaVetor(TERMINAL_TAMANHOPALAVRA);
-		
-	//Condições iniciais
-	idPalavra = 0;
-
-	//Recupera o último caractere da linha de comando para definir se roda em FOREGROUND ou BACKGROUND
-	if(LinhaComando[strlen(LinhaComando)-1] == '&') runForeground = 0;
-	else runForeground = 1;
-	
-	//Quebra Linha de Comando em Palavras
-	tokenPalavra = (char*) strtok(LinhaComando, " ");
-	while(tokenPalavra != NULL) {
-		//Salva palavra
-		strcpy(Parametro[idPalavra], tokenPalavra);
-
-		//Percorre o token
-		tokenPalavra = (char*) strtok(NULL, " ");
-
-		//Incrementa o número de palavras
-		idPalavra++;
-	}
-
-	//Salva número de parâmetro
-	numParametros = idPalavra;
-
-	if(numParametros >=0 ) strcpy(Comando, Parametro[0]);
-
-	if(!isBuiltIn(Parametro)){
-		//Roda comando
-		Terminal_rodaLinhaComando(Parametro, runForeground);
-		printf("\n");
-		return;
-			
-	}
-	else Terminal_rodaBuiltIn(Parametro);
-
-	//Libera memória alocada
-	free(tokenPalavra);
-}
-
 int main(void) {
 	//Variáveis
 	int loopProgram, idLinhaComando;
 	char *LinhaComando, **LinhasComando;
 	char *Diretorio, *Usuario;
+	
 	//Instala sinais
 	Signal_Instalacao();
 	
@@ -511,7 +511,7 @@ int main(void) {
 	Diretorio = Alocacao_alocaVetor(TERMINAL_TAMANHODIRETORIO);
 
 	//Limpa a tela
-//	system("clear");
+	puts("\n\n\n\n\n\n\n");
 
 	//Execução da rotina principal
 	while(loopProgram) {
@@ -519,11 +519,11 @@ int main(void) {
 		LinhaComando = Alocacao_alocaVetor(TERMINAL_TAMANHOLINHA);
 
 		Usuario = strdup(getenv("USER"));
-
+		
 		getcwd(Diretorio,TERMINAL_TAMANHODIRETORIO*sizeof(char));
 		
-                Terminal_imprimeShell(Usuario,Diretorio);
-
+                Tela_imprimeShell(Usuario,Diretorio);
+		
 		//Ativa o modo não-canônico
 		Canonical_setNonCanonicalMode();
 
