@@ -182,7 +182,7 @@ int Comando_rodaLinhaComando (char **Parametro, int runForeground) {
 void Terminal_InterpretaLinhaComando (char *LinhaComando, char **LinhasComando) {
 	//Variáveis	
 	int runForeground, idPalavra, iContador;
-	char **Parametro, **ParametroAux, *Comando, *tokenPalavra, *tokenPalavraAux, *LinhaComandoAux, *LinhaComandoAux2;
+	char **Parametro, *Comando, *tokenPalavra, *tokenPalavraAux, *LinhaComandoAux, *LinhaComandoAux2;
 	
 	//Aloca a matriz de parâmetros
 	//Parametro = Alocacao_alocaMatriz((TERMINAL_TAMANHOLINHA),TERMINAL_TAMANHOPALAVRA);
