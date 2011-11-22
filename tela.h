@@ -1,3 +1,7 @@
+#ifndef TELA_H_INCLUDED
+#define TELA_H_INCLUDED
+#endif
+
 //Inclusão de bibliotecas do sistema
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,7 +20,7 @@ void Tela_flushKeys(char *tecla);
 void Tela_apagaCaracteres(int numCaracteres);
 
 /*
-* Função: Terminal_imprimeShell(char*, char*)
+* Função: Terminal_imprimeShell(void)
 * Descrição: Imprime em vermelho o nome de usuário e o diretório atual
 */
-void Tela_imprimeShell(char* Usuario, char* Diretorio);
+void Tela_imprimeShell(void);

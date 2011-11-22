@@ -18,16 +18,7 @@
 #include "jobs.h"
 #include "signal_capture.h"
 #include "canonical.h"
-
-/*
-* Conjunto de definições de Terminal
-*/
-#define TERMINAL_TAMANHODIRETORIO 128
-#define TERMINAL_TAMANHOPATH 512
-#define TERMINAL_TAMANHOUSUARIO 32
-#define TERMINAL_NUMLINHAS 128
-#define TERMINAL_TAMANHOLINHA 1024
-#define TERMINAL_TAMANHOPALAVRA 32
+#include "terminal.h"
 
 /* Path */
 char **Path;
@@ -36,9 +27,9 @@ char **Path;
 * Função: Terminal_insereLinhaNoHistorico (char*, char**, int)
 * Descrição: Insere uma Linha de Comando no Histórico de Linhas
 */
-int Terminal_insereLinhaNoHistorico (char *LinhaComando, char **LinhasComando, int idLinhaComando) {
+int Terminal_insereLinhaNoHistorico (char *LinhaComando, char **LinhasComando, int numLinhasComando) {
 	//Insere LinhaComando na Lista de Comandos	
-	strcpy(LinhasComando[idLinhaComando],LinhaComando);	
+	strcpy(LinhasComando[numLinhasComando],LinhaComando);	
 	//Retorno
 	return 0;
 }
@@ -115,14 +106,12 @@ int Comando_rodaLinhaComando (char **Parametro, int runForeground) {
 	char *tokenPath;
 	int iContador, iPath = 0;
 
-	//char **tokenized = get_command_tokens(commands[i], &foreground);
-
 	//Cria processo-filho
 	pidNovoProcesso = fork();
 
 	//Falha na criação
 	if(pidNovoProcesso == -1) {
-		perror("Nao foi possivel criar novo processo\n");
+		perror("Nao foi possivel criar o processo.\n");
 		exit(0);
 	}
 	//Processo ativo
@@ -133,29 +122,35 @@ int Comando_rodaLinhaComando (char **Parametro, int runForeground) {
 		//Quebra PATH em diretórios
 		tokenPath = (char*) strtok(getenv("PATH"), ":");
 
+		//Rotina
 		while(tokenPath != NULL) {
-			//Aloca caminho
+			//Aloca e inicializa caminho
 			Path[iPath] = (char*) malloc(strlen(tokenPath)/*+strlen(Parametro[0])*/+1);
 			strcpy(Path[iPath],"");
+
 			//Salva caminho
 			strcat(Path[iPath], tokenPath);
+
 			//Percorre o token
 			tokenPath = (char*) strtok(NULL, ":");
+
 			//Incrementa o número de palavras
 			iPath++;
 		}
 		//Executa comando
 		for(iContador=0;iContador<iPath;iContador++) {
+			//Aloca Caminho
 			char Caminho[(strlen(Path[iContador])+strlen(*Parametro)+2)];
+			//Monta string Caminho
 			strcpy(Caminho,Path[iContador]);
 			strcat(Caminho,"/");
 			strcat(Caminho, *Parametro);
 			//printf("Parametro[%d]: %s\n",iContador,Parametro[iContador]);
 			execv(Caminho, Parametro);
 		}
-		printf("\n\n");
-		Tela_apagaCaracteres(100);
-		fprintf(stderr, "\nComando nao reconhecido.\n\n");
+		//Erro
+		Tela_apagaCaracteres(TERMINAL_TAMANHOLINHA);
+		fprintf(stderr, "Comando nao reconhecido.\n");
 		exit(EXIT_FAILURE);
 	}
 	else {
@@ -165,12 +160,9 @@ int Comando_rodaLinhaComando (char **Parametro, int runForeground) {
 		//Cria um job e adiciona à lista
 		Jobs_adicionaJob(&Jobs, Parametro[0], pidNovoProcesso, FOREGROUND, RODANDO);
 
+		//Espera em caso de FOREGROUND
 		if(runForeground == FOREGROUND) waitpid(pidNovoProcesso, NULL, 0);
-
 	}
-
-	free(Parametro);
-
 	//Retorno
 	return 1;
 }
@@ -183,9 +175,6 @@ void Terminal_InterpretaLinhaComando (char *LinhaComando, char **LinhasComando) 
 	//Variáveis	
 	int runForeground, idPalavra, iContador;
 	char **Parametro, *Comando, *tokenPalavra, *tokenPalavraAux, *LinhaComandoAux, *LinhaComandoAux2;
-	
-	//Aloca a matriz de parâmetros
-	//Parametro = Alocacao_alocaMatriz((TERMINAL_TAMANHOLINHA),TERMINAL_TAMANHOPALAVRA);
 
 	//Aloca o vetor Comando
 	Comando = Alocacao_alocaVetor(TERMINAL_TAMANHOPALAVRA);
@@ -240,7 +229,7 @@ void Terminal_InterpretaLinhaComando (char *LinhaComando, char **LinhasComando) 
 	if(!Comando_isBuiltIn(Parametro)){
 		//Roda comando
 		Comando_rodaLinhaComando(Parametro, runForeground);
-		return;
+		//return;
 			
 	}
 	else Comando_rodaBuiltIn(Parametro);
@@ -255,14 +244,10 @@ void Terminal_InterpretaLinhaComando (char *LinhaComando, char **LinhasComando) 
 * Função: Terminal_processaLinha (char*, char**, int)
 * Descrição: Lê e controla a Linha de Comando, de modo não-canônico
 */
-char* Terminal_processaLinha (char **LinhasComando, int idLinhaComando) {
+char* Terminal_processaLinha (char **LinhasComando, int numLinhasComando) {
 	//Variáveis
 	int keyIndex, contadorTeclas, linesOver;
-	char caractereDigitado, tecla[3], *LinhaComandoAux, *LinhaComando;
-	char *Diretorio, *Usuario;
-
-	//Aloca a Linha de Comando Auxiliar
-	LinhaComandoAux = Alocacao_alocaVetor(TERMINAL_TAMANHOLINHA);
+	char caractereDigitado, tecla[3], *LinhaComando;
 
 	//if(LinhaComando != NULL) free(LinhaComando);	
 	
@@ -273,10 +258,7 @@ char* Terminal_processaLinha (char **LinhasComando, int idLinhaComando) {
 	strcpy(LinhaComando,"");
 
 	//Reseta a Linha de Comando Auxiliar
-	strcpy(LinhaComandoAux, "");
-
-	//Aloca Diretório
-	Diretorio = Alocacao_alocaVetor(TERMINAL_TAMANHODIRETORIO);
+	//strcpy(LinhaComandoAux, "");
 
 	//Condições iniciais
 	keyIndex = 0;
@@ -296,50 +278,23 @@ char* Terminal_processaLinha (char **LinhasComando, int idLinhaComando) {
 		//Reseta o keyIndex a cada 3 caracteres
 		if(keyIndex > 2) keyIndex = 0;
 
+
 		//Tecla CIMA
 		if(tecla[0] == 27 && tecla[1] == 91 && tecla[2] == 65) {
 			//Zera buffer das teclas
 			Tela_flushKeys(tecla);
 
 			//Linha atual
-			if(linesOver == 0) {
-				//Gera Linha de Comando Auxiliar
-				strcpy(LinhaComandoAux,LinhaComando);
-
+			if(numLinhasComando-linesOver > 0) {
 				//Apaga o buffer escrito na tela
-				Tela_apagaCaracteres(strlen(LinhaComandoAux));
+				Tela_apagaCaracteres(TERMINAL_TAMANHOLINHA);
+				Tela_imprimeShell();
 
 				//Atualiza o número de linhas além da atual
 				linesOver++;
 
 				//Salva a linha anterior em LinhaComando
-				if(idLinhaComando-linesOver > 0) {
-					//Recupera a linha anterior
-					strcpy(LinhaComando, LinhasComando[idLinhaComando-linesOver]);
-					
-					//Recupera contador de teclas
-					contadorTeclas = strlen(LinhaComando);
-
-					//Imprime Linha de Comando
-					printf("%s", LinhaComando);
-				
-				}
-
-				else {
-					strcpy(LinhaComando,"");
-				}
-			}
-
-			//Linha anterior
-			else if(linesOver > 0 && idLinhaComando-linesOver > 0) {
-				//Apaga o buffer escrito na tela
-				Tela_apagaCaracteres(strlen(LinhaComando));
-
-				//Atualiza o número de linhas além da atual
-				linesOver++;
-
-				//Salva em LinhaComando a linha anterior
-				strcpy(LinhaComando, LinhasComando[idLinhaComando - linesOver]);
+				strcpy(LinhaComando, LinhasComando[numLinhasComando-linesOver]);
 
 				//Recupera contador de teclas
 				contadorTeclas = strlen(LinhaComando);
@@ -355,31 +310,21 @@ char* Terminal_processaLinha (char **LinhasComando, int idLinhaComando) {
 			Tela_flushKeys(tecla);
 
 			//Apaga o buffer escrito na tela
-			Tela_apagaCaracteres(strlen(LinhaComando));
-			
-			//Penúltima linha
-			if(linesOver == 1) {
-				//Atualiza o número de linhas além da atual
-				linesOver--;
-			
-				//Salva em LinhaComando a linha em branco
-				strcpy(LinhaComando,LinhaComandoAux);
+			Tela_apagaCaracteres(TERMINAL_TAMANHOLINHA);
+			Tela_imprimeShell();
 
-				//Recupera contador de teclas
-				contadorTeclas = strlen(LinhaComando);
+
+			//Última linha
+			if(linesOver == 0) strcpy(LinhaComando,"");
+
+			//Penúltima linha ou anterior
+			else if(linesOver > 0) {
+				linesOver--;
+				strcpy(LinhaComando, LinhasComando[numLinhasComando - linesOver]);
 			}
 
-			//Antepenúltima linha ou anterior
-			else if(linesOver > 1){
-				//Atualiza o número de linhas além da atual				
-				linesOver--;
-
-				//Salva em LinhaComando a próxima linha
-				strcpy(LinhaComando, LinhasComando[idLinhaComando - linesOver]);
-
-				//Recupera contador de teclas
-				contadorTeclas = strlen(LinhaComando);				
-			}
+			//Recupera contador de teclas
+			contadorTeclas = strlen(LinhaComando);
 
 			//Imprime Linha de Comando
 			printf("%s", LinhaComando);
@@ -393,14 +338,9 @@ char* Terminal_processaLinha (char **LinhasComando, int idLinhaComando) {
 			//Limpa a tela
 			//system("clear");//
 			puts("\n\n\n\n\n\n\n");
-			Tela_apagaCaracteres(100);
-			
-
-			Usuario = strdup(getenv("USER"));
-
-			getcwd(Diretorio,TERMINAL_TAMANHODIRETORIO*sizeof(char));
+			Tela_apagaCaracteres(TERMINAL_TAMANHOLINHA);
 		
-                	Tela_imprimeShell(Usuario,Diretorio);
+                	Tela_imprimeShell();
 		}
 		//Comando CTRL+C
 		else if((tecla[0] == 3 || tecla[1] == 3 || tecla[2] == 3) && contadorTeclas == 0) {
@@ -480,7 +420,6 @@ char* Terminal_processaLinha (char **LinhasComando, int idLinhaComando) {
 				LinhaComando[contadorTeclas] = '\0';
 			}
 		}
-	
 	}
 	//Retorno
 	return LinhaComando;
@@ -488,9 +427,9 @@ char* Terminal_processaLinha (char **LinhasComando, int idLinhaComando) {
 
 int main(void) {
 	//Variáveis
-	int loopProgram, idLinhaComando;
+	int loopProgram, numLinhasComando;
 	char *LinhaComando, **LinhasComando;
-	char *Diretorio, *Usuario;
+	//char *Diretorio, *Usuario;
 	
 	//Instala sinais
 	Signal_Instalacao();
@@ -505,49 +444,43 @@ int main(void) {
 	
 	//Condições iniciais
 	loopProgram = 1;
-	idLinhaComando = 0;
-
-	//Aloca Diretório
-	Diretorio = Alocacao_alocaVetor(TERMINAL_TAMANHODIRETORIO);
+	numLinhasComando = 0;
 
 	//Limpa a tela
 	puts("\n\n\n\n\n\n\n");
 
 	//Execução da rotina principal
 	while(loopProgram) {
-		//Aloca Cada Linha de Comando
+		//Aloca Linha de Comando
 		LinhaComando = Alocacao_alocaVetor(TERMINAL_TAMANHOLINHA);
-
-		Usuario = strdup(getenv("USER"));
 		
-		getcwd(Diretorio,TERMINAL_TAMANHODIRETORIO*sizeof(char));
-		
-                Tela_imprimeShell(Usuario,Diretorio);
+		//Imprime a Shell
+                Tela_imprimeShell();
 		
 		//Ativa o modo não-canônico
 		Canonical_setNonCanonicalMode();
 
 		//Lê a Linha de Comando
-		LinhaComando = Terminal_processaLinha(LinhasComando, idLinhaComando);
+		LinhaComando = Terminal_processaLinha(LinhasComando, numLinhasComando);
 
 		//Retorna ao modo canônico
 		Canonical_setCanonicalMode();
 
+		//Processa Linha de Comando
 		if(LinhaComando != NULL){
 			//Insere Linha de Comando no Histórico
-			Terminal_insereLinhaNoHistorico(LinhaComando, LinhasComando, idLinhaComando);
+			Terminal_insereLinhaNoHistorico(LinhaComando, LinhasComando, numLinhasComando);
 
 			//Interpreta Linha de Comando
 			Terminal_InterpretaLinhaComando(LinhaComando, LinhasComando);
 		
-			//Incrementa Linha de Comando
-			idLinhaComando++;
+			//Incrementa Número de Linhas de Comando
+			numLinhasComando++;
 
 			//Libera memória alocada
 			free(LinhaComando);		
 		}
 	}
-
 	//Retorno
 	return 1;
 }
