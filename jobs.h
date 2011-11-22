@@ -76,13 +76,13 @@ Job* Jobs_retornaJobComPID (JobHeader *L, pid_t pid);
 * Função: Jobs_colocaJobEmBackground (JobHeader, pid_t)
 * Dado um PID, busca a Job correspondente e define seu status como BACKGROUND caso encontre
 */
-void Jobs_colocaJobEmBackground (JobHeader L, pid_t pid);
+void Jobs_colocaJobEmBackground (JobHeader *L, pid_t pid);
 
 /*
 * Função: Jobs_colocaJobEmForeground (JobHeader, pid_t)
 * Dado um PID, busca a Job correspondente e define seu status como FOREGROUND caso encontre
 */
-void Jobs_colocaJobEmForeground (JobHeader L, pid_t pid);
+void Jobs_colocaJobEmForeground (JobHeader *L, pid_t pid);
 
 /* 
 * Função: Jobs_retornaJobEmForeground (JobHeader)

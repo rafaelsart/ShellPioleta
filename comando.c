@@ -30,6 +30,12 @@ int Comando_isBuiltIn (char **Parametro) {
 
 	//fg
 	if(strcmp(Parametro[0], "fg") == 0) return 1;
+
+	//bgcurjob
+	if(strcmp(Parametro[0], "bgcurjob") == 0) return 1;
+
+	//fgcurjob
+	if(strcmp(Parametro[0], "fgcurjob") == 0) return 1;
 	
 	//jobs
 	if(strcmp(Parametro[0], "jobs") == 0) return 1;
@@ -61,18 +67,28 @@ void Comando_rodaBuiltIn (char **Parametro) {
 	if (strcmp(Parametro[0], "bg") == 0) {
 		if(Parametro[1]) {
 			pid = strtol(Parametro[1], NULL, 10);
-			Jobs_colocaJobEmBackground(Jobs,pid);
+			Jobs_colocaJobEmBackground(&Jobs,pid);
 		}
 		else printf("Uso: bg <id>\n");
 	}
-	
 	//fg
 	if (strcmp(Parametro[0], "fg") == 0) {
 		if(Parametro[1]) {
 			pid = strtol(Parametro[1], NULL, 10);
-			Jobs_colocaJobEmForeground(Jobs,pid);
+			Jobs_colocaJobEmForeground(&Jobs,pid);
+			//waitpid(pid, NULL, 0);
 		}
 		else printf("Uso: bg <id>\n");
+	}
+	//bgcurjob
+	if (strcmp(Parametro[0], "bgcurjob") == 0) {
+		Jobs_imprimeJobs(Jobs);
+		Jobs_colocaJobEmBackground(&Jobs,Jobs.ultimoJob->pid);
+	}
+	//fgcurjob
+	if (strcmp(Parametro[0], "fgcurjob") == 0) {
+		//waitpid(Jobs.ultimoJob->pid, NULL, 0);
+		Jobs_colocaJobEmForeground(&Jobs,Jobs.ultimoJob->pid);
 	}
 }
 

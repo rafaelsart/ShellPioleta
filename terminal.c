@@ -202,7 +202,7 @@ char* Terminal_processaLinha (char **LinhasComando, int numLinhasComando) {
 
 		//Comando CTRL+D
 		else if((tecla[0] == 4 || tecla[1] == 4 || tecla[2] == 4) && contadorTeclas == 0) {
-			//Zera buffer das teclas		
+			//Zera buffer das teclas
 			Tela_flushKeys(tecla);
 			
 			//IMPLEMENTAR

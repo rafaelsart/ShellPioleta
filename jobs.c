@@ -132,9 +132,11 @@ Job* Jobs_retornaJobComPID (JobHeader *L, pid_t pid) {
 * Função: Jobs_colocaJobEmBackground (JobHeader, pid_t)
 * Dado um PID, busca a Job correspondente e define seu status como BACKGROUND caso encontre
 */
-void Jobs_colocaJobEmBackground (JobHeader L, pid_t pid) {
-	//Armazena primeiro elemento da lista
-	Job *jobInicio = L.primeiroJob;
+void Jobs_colocaJobEmBackground (JobHeader *L, pid_t pid) {
+	//Variáveis
+	Job *jobInicio;
+	//Copia a lista
+	jobInicio = L->primeiroJob;
 	//Rotina de pesquisa da Lista
 	while (jobInicio != NULL) {
 		//Procura Job desejado	       
@@ -147,43 +149,55 @@ void Jobs_colocaJobEmBackground (JobHeader L, pid_t pid) {
 				//Atualiza job
 				jobInicio->status = BACKGROUND;
 				jobInicio->statusExecucao = RODANDO;
-
-				//Mata e envia SIGCONT
-				kill(jobInicio->pid, SIGCONT);
-			}
-		}
-		//Percorre a lista
-		jobInicio = jobInicio->prox;
-	}
-	printf("Job nao encontrado.\n");
-}
-
-/*
-* Função: Jobs_colocaJobEmForeground (JobHeader, pid_t)
-* Dado um PID, busca a Job correspondente e define seu status como FOREGROUND caso encontre
-*/
-void Jobs_colocaJobEmForeground (JobHeader L, pid_t pid) {
-	//Armazena primeiro elemento da lista
-	Job *jobInicio = L.primeiroJob;
-	//Rotina de pesquisa da Lista
-	while (jobInicio != NULL) {
-		//Procura Job desejado	       
-		if (jobInicio->pid == pid) {
-			//O Job já terminou			
-			if(jobInicio->statusExecucao == TERMINOU) printf("Job ja terminou.\n");
-
-			//O Job ainda existe
-			else {
-				//Atualiza job
-				jobInicio->status = FOREGROUND;
-				jobInicio->statusExecucao = RODANDO;
+				return;
 			}
 		}
 		//Percorre a lista
 		jobInicio = jobInicio->prox;
 	}
 	//Job não encontrado
-	printf("Job nao encontrado.\n");
+	printf("\nJob nao encontrado.\n");
+}
+
+/*
+* Função: Jobs_colocaJobEmForeground (JobHeader, pid_t)
+* Dado um PID, busca a Job correspondente e define seu status como FOREGROUND caso encontre
+*/
+void Jobs_colocaJobEmForeground (JobHeader *L, pid_t pid) {
+	printf("1");
+	//Variáveis
+	Job *jobAux;
+	//Copia a lista
+	jobAux = L->primeiroJob;
+	//Rotina de pesquisa da Lista
+	while (jobAux != NULL) {
+		//Procura Job desejado
+		if (jobAux->pid == pid) {
+			printf("2");
+			//O Job já terminou			
+			if(jobAux->statusExecucao == TERMINOU) printf("Job ja terminou.\n");
+			
+			//O job já está em FOREGROUND
+			else if(jobAux->status == FOREGROUND) printf("Job ja esta rodando em foreground.\n");
+		
+			//O Job ainda existe e está em BACKGROUND
+			else {
+				printf("3");
+				//Atualiza job
+				jobAux->status = FOREGROUND;
+				jobAux->statusExecucao = RODANDO;
+				waitpid(jobAux->pid,NULL,0);
+				//Mata o processo e envia SIGCONT
+				kill(jobAux->pid,SIGCONT);
+				Jobs_imprimeJobs(Jobs);
+				return;
+			}
+		}
+		//Percorre a lista
+		jobAux = jobAux->prox;
+	}
+	//Job não encontrado
+	printf("\nJob nao encontrado.\n");
 }
 
 /* 
@@ -229,7 +243,7 @@ void Jobs_imprimeJobs(JobHeader L) {
 			printf("Status: ");
 			if(jobInicio->statusExecucao == RODANDO) printf("RODANDO, ");
 			else if(jobInicio->statusExecucao == PAUSADO) printf("PAUSADO, ");
-			else if(jobInicio->statusExecucao == TERMINOU) printf("CONCLUIDO, ");
+			else if(jobInicio->statusExecucao == TERMINOU) printf("TERMINOU, ");
 			//Modo
 			if(jobInicio->status==BACKGROUND) printf("BACKGROUND\n");
 			else if(jobInicio->status==FOREGROUND) printf("FOREGROUND\n");
