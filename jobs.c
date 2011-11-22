@@ -102,7 +102,6 @@ int Jobs_removeJob (JobHeader *L, pid_t pid) {
 			//Job não encontrado
 			return ERRO_NAO_ENCONTRADO;
 		}
-			
 	}
 	//Lista vazia
 	return ERRO_LISTA_VAZIA;
@@ -115,8 +114,10 @@ int Jobs_removeJob (JobHeader *L, pid_t pid) {
 Job* Jobs_retornaJobComPID (JobHeader *L, pid_t pid) {
 	//Variáveis	
 	Job *jobAux;
+
 	//Copia a lista
 	jobAux = L->primeiroJob;
+
 	//Percorre a lista
 	while(jobAux != NULL) {
 		if(jobAux->pid == pid) return jobAux;
@@ -131,7 +132,7 @@ Job* Jobs_retornaJobComPID (JobHeader *L, pid_t pid) {
 * Função: Jobs_colocaJobEmBackground (JobHeader, pid_t)
 * Dado um PID, busca a Job correspondente e define seu status como BACKGROUND caso encontre
 */
-int Jobs_colocaJobEmBackground (JobHeader L, pid_t pid) {
+void Jobs_colocaJobEmBackground (JobHeader L, pid_t pid) {
 	//Armazena primeiro elemento da lista
 	Job *jobInicio = L.primeiroJob;
 	//Rotina de pesquisa da Lista
@@ -139,37 +140,29 @@ int Jobs_colocaJobEmBackground (JobHeader L, pid_t pid) {
 		//Procura Job desejado	       
 		if (jobInicio->pid == pid) {
 			//O Job já terminou			
-			if(jobInicio->statusExecucao == TERMINOU) {
-				//ERRO_JOB_JA_TERMINOU
-			}
+			if(jobInicio->statusExecucao == TERMINOU) printf("Job ja terminou.\n");
 
 			//O Job ainda existe
 			else {
-				//Altera status
+				//Atualiza job
 				jobInicio->status = BACKGROUND;
 				jobInicio->statusExecucao = RODANDO;
 
 				//Mata e envia SIGCONT
 				kill(jobInicio->pid, SIGCONT);
-			
-				//Retorna SUCESSO			
-				return ERRO_SUCESSO;
 			}
 		}
 		//Percorre a lista
 		jobInicio = jobInicio->prox;
 	}
-	//ERRO_NAO_ENCONTRADO
-
-	//retorno
-	return ERRO_NAO_ENCONTRADO;
+	printf("Job nao encontrado.\n");
 }
 
 /*
 * Função: Jobs_colocaJobEmForeground (JobHeader, pid_t)
 * Dado um PID, busca a Job correspondente e define seu status como FOREGROUND caso encontre
 */
-int Jobs_colocaJobEmForeground (JobHeader L, pid_t pid) {
+void Jobs_colocaJobEmForeground (JobHeader L, pid_t pid) {
 	//Armazena primeiro elemento da lista
 	Job *jobInicio = L.primeiroJob;
 	//Rotina de pesquisa da Lista
@@ -177,25 +170,20 @@ int Jobs_colocaJobEmForeground (JobHeader L, pid_t pid) {
 		//Procura Job desejado	       
 		if (jobInicio->pid == pid) {
 			//O Job já terminou			
-			if(jobInicio->statusExecucao == TERMINOU) {
-				//ERRO_JOB_JA_TERMINOU
-			}
+			if(jobInicio->statusExecucao == TERMINOU) printf("Job ja terminou.\n");
 
 			//O Job ainda existe
 			else {
-				//Altera status
+				//Atualiza job
 				jobInicio->status = FOREGROUND;
 				jobInicio->statusExecucao = RODANDO;
-
-				//Retorna SUCESSO			
-				return ERRO_SUCESSO;
 			}
 		}
 		//Percorre a lista
 		jobInicio = jobInicio->prox;
 	}
 	//Job não encontrado
-	return ERRO_NAO_ENCONTRADO;
+	printf("Job nao encontrado.\n");
 }
 
 /* 
@@ -222,7 +210,7 @@ Job* Jobs_retornaJobEmForeground (JobHeader L) {
 */
 void Jobs_imprimeJobs(JobHeader L) {
 	//Variáveis
-	int iContador = 1;
+	int iContador = 0;
 	//Armazena primeiro elemento da lista
 	Job *jobInicio = L.primeiroJob;
 	//Lista vazia
@@ -231,18 +219,21 @@ void Jobs_imprimeJobs(JobHeader L) {
 		//Rotina de pesquisa da Lista
 		while (jobInicio != NULL) {
 			//Imprime lista formatada
-			printf("\n");
 			//Título
-			printf("Job #%d\n", iContador);
+			printf("[%d] ", iContador);
 			//PID
-			printf("PID: %d\n", jobInicio->pid);
+			printf("PID: %d, ", jobInicio->pid);
 			//Comando
-			printf("Comando: %s\n", jobInicio->comando);
+			printf("Comando: %s, ", jobInicio->comando);
 			//Status
 			printf("Status: ");
-			if(jobInicio->status==BACKGROUND) printf("Background\n");
-			else if(jobInicio->status==FOREGROUND) printf("Foreground\n");
-			else printf("Desconhecido\n");
+			if(jobInicio->statusExecucao == RODANDO) printf("RODANDO, ");
+			else if(jobInicio->statusExecucao == PAUSADO) printf("PAUSADO, ");
+			else if(jobInicio->statusExecucao == TERMINOU) printf("CONCLUIDO, ");
+			//Modo
+			if(jobInicio->status==BACKGROUND) printf("BACKGROUND\n");
+			else if(jobInicio->status==FOREGROUND) printf("FOREGROUND\n");
+			else printf("?\n");
 			//Percorre a lista
 			jobInicio = jobInicio->prox;
 			//Incrementa o contador

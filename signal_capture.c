@@ -36,14 +36,14 @@ void Signal_capturaSigTSTP (int signum, siginfo_t *info, void *context) {
 	jobAux = Jobs_retornaJobEmForeground(Jobs);
 	
 	//Não encontrado
-	if(jobAux == NULL) {
-		printf("Nao ha nenhum job em Foreground!");
-	}
+	if(jobAux == NULL) printf("Nenhum job em foreground\n!");
 
 	//Encontrado
 	else {
+		//Define status para background
 		jobAux->status = BACKGROUND;
-
+		
+		//Pausa se a execução não terminou
 		if(jobAux->statusExecucao != TERMINOU) {
 			//Pausa a Job
 			jobAux->statusExecucao = PAUSADO;
@@ -65,6 +65,7 @@ void Signal_capturaSigCHLD (int signum, siginfo_t *info, void *context) {
 	//Coloca em espera
 	waitpid(info->si_pid, &estado, WUNTRACED | WCONTINUED);
 
+	//Busca PID
 	jobAux = Jobs_retornaJobComPID(&Jobs,info->si_pid);
 
 	if (WIFSTOPPED(estado)) {
