@@ -1,0 +1,1081 @@
+
+accept
+ 7
+access
+ 14
+aclocal
+ 22
+aconnect
+ 31
+acpi
+ 36
+acpi_available
+ 51
+acpid
+ 57
+addr2line
+ 67
+addresses
+ 77
+agetty
+ 84
+alsactl
+ 92
+amidi
+ 98
+amixer
+ 105
+anacron
+ 113
+aplay
+ 119
+aplaymidi
+ 129
+apm
+ 133
+apmd
+ 138
+apropos
+ 146
+apt
+ 150
+arch
+ 158
+arecord
+ 166
+arecordmidi
+ 178
+arp
+ 182
+atd
+ 192
+atq
+ 196
+atrm
+ 201
+audiosend
+ 211
+aumix
+ 217
+autoconf
+ 226
+autoheader
+ 237
+automake
+ 246
+autoreconf
+ 257
+autoscan
+ 266
+autoupdate
+ 277
+badblocks
+ 290
+banner
+ 297
+basename
+ 306
+bash
+ 311
+batch
+ 317
+biff
+ 325
+bison
+ 331
+bzcmp
+ 337
+bzdiff
+ 344
+bzgrep
+ 351
+bzip2
+ 357
+bzless
+ 364
+bzmore
+ 371
+c++
+ 375
+c++filt
+ 383
+cal
+ 387
+cardctl
+ 395
+cardmgr
+ 403
+cat
+ 407
+cdda2wav
+ 419
+cdparanoia
+ 430
+cdrdao
+ 437
+cdrecord
+ 446
+cfdisk
+ 453
+chage
+ 459
+chattr
+ 466
+chfn
+ 471
+chgrp
+ 477
+chkconfig
+ 487
+chmod
+ 493
+chown
+ 499
+chpasswd
+ 508
+chroot
+ 515
+chrt
+ 520
+chsh
+ 525
+chvt
+ 530
+cksum
+ 536
+clear
+ 542
+cmp
+ 546
+col
+ 550
+colcrt
+ 557
+colrm
+ 563
+column
+ 570
+comm
+ 575
+compress
+ 584
+cpio
+ 592
+cpp
+ 596
+crond
+ 602
+crontab
+ 610
+csplit
+ 617
+ctags
+ 623
+cupsd
+ 629
+cut
+ 633
+cvs
+ 637
+date
+ 642
+deallocvt
+ 655
+debugfs
+ 663
+depmod
+ 670
+devdump
+ 678
+diff
+ 686
+diff3
+ 692
+dig
+ 696
+dir
+ 700
+dircolors
+ 710
+dirname
+ 718
+disable
+ 726
+dlpsh
+ 732
+dmesg
+ 738
+dnsdomainname
+ 752
+dnssec-keygen
+ 766
+dnssec-makekeyset
+ 784
+dnssec-signkey
+ 799
+dnssec-signzone
+ 815
+doexec
+ 822
+domainname
+ 833
+dosfsck
+ 841
+dump
+ 849
+dumpe2fs
+ 858
+dumpkeys
+ 867
+e2fsck
+ 874
+e2image
+ 882
+e2label
+ 890
+echo
+ 895
+edquota
+ 903
+egrep
+ 909
+eject
+ 915
+elvtune
+ 923
+emacs
+ 929
+enable
+ 936
+env
+ 940
+envsubst
+ 949
+esd
+ 953
+esd-config
+ 964
+esdcat
+ 971
+esdctl
+ 978
+esddsp
+ 985
+esdmon
+ 992
+esdplay
+ 1000
+esdrec
+ 1007
+esdsample
+ 1017
+etags
+ 1023
+expand
+ 1033
+expr
+ 1038
+factor
+ 1048
+false
+ 1054
+fc-cache
+ 1063
+fc-list
+ 1071
+fdformat
+ 1080
+fdisk
+ 1086
+fetchmail
+ 1096
+fgconsole
+ 1106
+fgrep
+ 1112
+file
+ 1117
+find
+ 1122
+finger
+ 1129
+fingerd
+ 1137
+flex
+ 1142
+fmt
+ 1146
+fold
+ 1151
+formail
+ 1159
+free
+ 1164
+fsck
+ 1169
+ftp
+ 1173
+ftpd
+ 1178
+fuser
+ 1184
+g++
+ 1191
+gawk
+ 1196
+gcc
+ 1200
+gdb
+ 1204
+getent
+ 1211
+getkeycodes
+ 1223
+gpasswd
+ 1231
+gpg
+ 1235
+gpgsplit
+ 1244
+gpgv
+ 1249
+gpm
+ 1253
+gprof
+ 1259
+grep
+ 1264
+groff
+ 1270
+groffer
+ 1278
+groupadd
+ 1287
+groupdel
+ 1296
+groupmod
+ 1305
+groups
+ 1312
+grpck
+ 1318
+grpconv
+ 1326
+gunzip
+ 1336
+gzexe
+ 1342
+gzip
+ 1347
+halt
+ 1355
+hdparm
+ 1362
+head
+ 1367
+hexdump
+ 1375
+host
+ 1380
+hostid
+ 1387
+hostname
+ 1396
+htdigest
+ 1405
+hwclock
+ 1413
+iconv
+ 1422
+ifconfig
+ 1434
+imapd
+ 1440
+inetd
+ 1446
+info
+ 1451
+init
+ 1456
+insmod
+ 1463
+install
+ 1471
+ipcrm
+ 1477
+ipcs
+ 1482
+iptables
+ 1491
+iptables-restore
+ 1508
+iptables-save
+ 1522
+isodump
+ 1530
+isoinfo
+ 1538
+isosize
+ 1546
+isovfy
+ 1553
+ispell
+ 1560
+join
+ 1568
+kbd_mode
+ 1580
+kbdrate
+ 1588
+kernelversion
+ 1602
+kill
+ 1607
+killall
+ 1615
+killall5
+ 1624
+klogd
+ 1630
+kudzu
+ 1636
+last
+ 1644
+lastb
+ 1650
+lastlog
+ 1658
+ldconfig
+ 1670
+ldd
+ 1674
+less
+ 1679
+lesskey
+ 1687
+lftp
+ 1692
+lftpget
+ 1700
+link
+ 1705
+loadkeys
+ 1717
+locale
+ 1724
+locate
+ 1731
+lockfile
+ 1740
+logger
+ 1747
+login
+ 1753
+logname
+ 1761
+logrotate
+ 1771
+look
+ 1776
+losetup
+ 1784
+lpadmin
+ 1792
+lpinfo
+ 1799
+lpmove
+ 1806
+lpq
+ 1810
+lpr
+ 1814
+lprm
+ 1819
+lpstat
+ 1826
+lsattr
+ 1836
+lspci
+ 1842
+lsmod
+ 1848
+lsusb
+ 1854
+mail
+ 1865
+mailq
+ 1871
+mailstats
+ 1881
+mailto
+ 1888
+make
+ 1893
+makedbm
+ 1901
+makemap
+ 1909
+man
+ 1913
+manpath
+ 1921
+mattrib
+ 1929
+mbadblocks
+ 1940
+mcat
+ 1945
+mcd
+ 1949
+mcopy
+ 1955
+md5sum
+ 1962
+mdel, mdeltree
+ 1977
+mdir
+ 1982
+mdu
+ 1986
+merge
+ 1992
+mesg
+ 1997
+metamail
+ 2006
+metasend
+ 2015
+mformat
+ 2023
+mimencode
+ 2033
+minfo
+ 2039
+mkdir
+ 2045
+mkdosfs
+ 2053
+mke2fs
+ 2060
+mkfifo
+ 2067
+mkfs
+ 2072
+mkfs.ext3
+ 2082
+mkisofs
+ 2090
+mklost+found
+ 2103
+mkmanifest
+ 2114
+mknod
+ 2120
+mkraid
+ 2127
+mkswap
+ 2134
+mktemp
+ 2141
+mlabel
+ 2148
+mmd
+ 2152
+mmount
+ 2159
+mmove
+ 2165
+modinfo
+ 2173
+modprobe
+ 2182
+more
+ 2187
+mount
+ 2193
+mountd
+ 2200
+mpartition
+ 2211
+mpg123
+ 2218
+mpg321
+ 2225
+mrd
+ 2229
+mren
+ 2234
+mshowfat
+ 2243
+mtools
+ 2253
+mtoolstest
+ 2264
+mtype
+ 2270
+mzip
+ 2278
+named
+ 2287
+namei
+ 2293
+nameif
+ 2300
+netstat
+ 2308
+newaliases
+ 2319
+newgrp
+ 2326
+newusers
+ 2335
+nfsd
+ 2340
+nfsstat
+ 2348
+nice
+ 2353
+nohup
+ 2362
+nslookup
+ 2371
+nsupdate
+ 2380
+objcopy
+ 2391
+objdump
+ 2399
+openvt
+ 2409
+passwd
+ 2419
+paste
+ 2425
+patch
+ 2431
+pathchk
+ 2439
+perl
+ 2444
+pidof
+ 2450
+ping
+ 2455
+pinky
+ 2461
+pmap
+ 2466
+portmap
+ 2474
+poweroff
+ 2483
+pppd
+ 2488
+praliases
+ 2501
+printenv
+ 2510
+printf
+ 2517
+ptx
+ 2524
+pwck
+ 2529
+pwconv
+ 2536
+pwd
+ 2540
+python
+ 2547
+quota
+ 2556
+quotacheck
+ 2567
+quotaon
+ 2575
+quotaoff
+ 2584
+quotastats
+ 2595
+raidstart
+ 2608
+ramsize
+ 2616
+ranlib
+ 2623
+rarpd
+ 2629
+rcp
+ 2633
+rdate
+ 2639
+rdev
+ 2644
+rdist
+ 2650
+rdistd
+ 2657
+readcd
+ 2664
+readelf
+ 2672
+readlink
+ 2681
+reboot
+ 2688
+reject
+ 2695
+rename
+ 2702
+renice
+ 2709
+repquota
+ 2718
+reset
+ 2724
+resize2fs
+ 2734
+restore
+ 2742
+rev
+ 2746
+rexec
+ 2752
+rexecd
+ 2759
+richtext
+ 2768
+rlogin
+ 2775
+rlogind
+ 2783
+rmail
+ 2792
+rmdir
+ 2798
+rmmod
+ 2804
+rndc
+ 2809
+rootflags
+ 2819
+route
+ 2825
+routed
+ 2832
+rpcgen
+ 2839
+rpcinfo
+ 2847
+rpm
+ 2851
+rsh
+ 2855
+rshd
+ 2860
+rsync
+ 2866
+runlevel
+ 2875
+rup
+ 2879
+ruptime
+ 2887
+rusers
+ 2894
+rusersd
+ 2902
+rwall
+ 2908
+rwho
+ 2913
+rwhod
+ 2919
+sane-find-scanner
+ 2940
+scanadf
+ 2948
+scanimage
+ 2958
+scp
+ 2962
+screen
+ 2969
+script
+ 2976
+sdiff
+ 2982
+sed
+ 2986
+sendmail
+ 2995
+sensors
+ 3003
+seq
+ 3007
+setfdprm
+ 3016
+setkeycodes
+ 3028
+setleds
+ 3036
+setmetamode
+ 3048
+setquota
+ 3057
+setsid
+ 3064
+setterm
+ 3072
+sftp
+ 3077
+sha1sum
+ 3088
+showkey
+ 3096
+showmount
+ 3106
+shred
+ 3112
+shutdown
+ 3121
+size
+ 3126
+skill
+ 3132
+slabtop
+ 3140
+slattach
+ 3149
+sleep
+ 3155
+slocate
+ 3163
+snice
+ 3169
+sort
+ 3174
+split
+ 3180
+ssh
+ 3184
+ssh-add
+ 3192
+ssh-agent
+ 3202
+ssh-keygen
+ 3213
+ssh-keyscan
+ 3225
+sshd
+ 3230
+stat
+ 3235
+statd
+ 3241
+strace
+ 3248
+strfile
+ 3256
+strings
+ 3266
+strip
+ 3272
+stty
+ 3277
+sudo
+ 3285
+sum
+ 3289
+swapoff
+ 3297
+swapon
+ 3304
+sync
+ 3309
+sysctl
+ 3316
+sysklogd
+ 3325
+syslogd
+ 3333
+tac
+ 3340
+tail
+ 3345
+tailf
+ 3351
+talk
+ 3356
+talkd
+ 3362
+tar
+ 3366
+taskset
+ 3374
+tcpd
+ 3379
+tcpdump
+ 3387
+tcpslice
+ 3396
+tee
+ 3400
+telinit
+ 3408
+telnet
+ 3415
+telnetd
+ 3423
+test
+ 3428
+tftp
+ 3433
+tftpd
+ 3439
+time
+ 3444
+tload
+ 3450
+tmpwatch
+ 3459
+top
+ 3463
+touch
+ 3469
+tracepath
+ 3482
+traceroute
+ 3493
+troff
+ 3499
+true
+ 3504
+tset
+ 3509
+tsort
+ 3515
+tty
+ 3519
+tune2fs
+ 3527
+tunelp
+ 3534
+umount
+ 3547
+uname
+ 3553
+uncompress
+ 3564
+unexpand
+ 3573
+unicode_start
+ 3587
+unicode_stop
+ 3600
+uniq
+ 3605
+uptime
+ 3612
+useradd
+ 3620
+userdel
+ 3628
+usermod
+ 3636
+users
+ 3642
+usleep
+ 3649
+uudecode
+ 3658
+uuencode
+ 3667
+uuidgen
+ 3675
+vdir
+ 3683
+vidmode
+ 3694
+vim
+ 3698
+vmstat
+ 3705
+volname
+ 3713
+wall
+ 3723
+warnquota
+ 3733
+watch
+ 3739
+wget
+ 3747
+whatis
+ 3754
+whereis
+ 3762
+which
+ 3768
+who
+ 3772
+whoami
+ 3779
+whois
+ 3785
+write
+ 3791
+xargs
+ 3800
+xinetd
+ 3807
+yacc
+ 3815
+yes
+ 3819
+ypbind
+ 3826
+ypcat
+ 3832
+ypinit
+ 3839
+ypmatch
+ 3847
+yppasswd
+ 3856
+yppasswdd
+ 3866
+yppoll
+ 3873
+yppush
+ 3880
+ypserv
+ 3887
+ypset
+ 3893
+yptest
+ 3900
+ypwhich
+ 3908
+ypxfr
+ 3914
+zcat
+ 3922
+zcmp
+ 3927
+zdiff
+ 3933
+zdump
+ 3939
+zforce
+ 3946
+zgrep
+ 3952
+zic
+ 3956
+zless
+ 3962
+zmore
+ 3968
+znew
+ 3973

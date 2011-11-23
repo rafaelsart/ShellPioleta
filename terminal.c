@@ -33,7 +33,7 @@ void Terminal_InterpretaLinhaComando (char *LinhaComando, char **LinhasComando) 
 	//Variáveis	
 	int iContador, numParametros, status;
 	char **Parametro, *Comando, *tokenPalavra, *espacoAux;
-		
+	
 	//Condições iniciais
 	iContador = 0;
 	numParametros = 0;
@@ -94,14 +94,27 @@ void Terminal_InterpretaLinhaComando (char *LinhaComando, char **LinhasComando) 
 	free(Parametro);
 }
 
+
+char* compararTab(char *buffer) {
+	
+
+	return NULL;
+}
+
 /*
 * Função: Terminal_processaLinha (char*, char**, int)
 * Descrição: Lê e controla a Linha de Comando, de modo não-canônico
 */
 char* Terminal_processaLinha (char **LinhasComando, int numLinhasComando) {
 	//Variáveis
-	int keyIndex, contadorTeclas, linesOver;
-	char caractereDigitado, tecla[3], *LinhaComando;
+	int keyIndex, contadorTeclas, linesOver, okTab, i, temAbrev, stopTab;
+	char caractereDigitado, tecla[3], *LinhaComando, *bufferAux, *bufA, *bufB;
+	FILE *tabelaTab;
+
+	stopTab = 0;
+	
+	tabelaTab = fopen("tabela.txt", "r+");
+	if(tabelaTab != NULL) okTab = 1;
 	
 	//Aloca a Linha de Comando
 	LinhaComando = Alocacao_alocaVetor(TERMINAL_TAMANHOLINHA);
@@ -208,6 +221,62 @@ char* Terminal_processaLinha (char **LinhasComando, int numLinhasComando) {
 			//IMPLEMENTAR
 			//Envia sinal de interrupção
 			break;
+		}
+	
+		//TAB
+		else if(tecla[0] == 9){
+			if(strlen(LinhaComando) > 2 && okTab == 1){
+				while(stopTab != 1) {
+					bufferAux = (char *) malloc(sizeof(char) * 50);
+
+					if(fgets(bufferAux, 50, tabelaTab) != NULL) {
+						bufferAux[strlen(bufferAux) - 1] = '\0';
+
+						bufA = (char *) malloc(sizeof(char) * 50);
+						bufB = (char *) malloc(sizeof(char) * 50);
+
+						temAbrev = 0;
+						for(i=0; bufferAux[i] != '\0'; i++) {
+		
+							if(bufferAux[i] == ' '){
+								temAbrev = 1;
+							}
+						}
+					
+						if(temAbrev == 1){
+							for(i=0; bufferAux[i] != ' '; i++) {
+								bufB[i] = bufferAux[i];
+							}	
+							bufB[i] = '\0';
+							i++;
+
+							for(; bufferAux[i] != '\0'; i++) {
+								bufA[i] = bufferAux[i];
+							}
+							bufA[i] = '\0';
+	
+							if(strcmp(bufA, LinhaComando) == 0){
+								printf("%s", bufB);
+
+								Tela_apagaCaracteres(strlen(bufB));
+								contadorTeclas = contadorTeclas - strlen(LinhaComando);
+								contadorTeclas = contadorTeclas + strlen(bufB);
+							}
+						}
+						
+						free(bufA);
+						free(bufB);						
+					}
+					else {
+						stopTab = 1; // acabou a lista
+					}
+
+					
+
+					free(bufferAux);
+				}
+			} 
+			
 		}
 
 		//Nenhuma tecla acima
