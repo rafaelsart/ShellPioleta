@@ -60,40 +60,39 @@ void Signal_capturaSigTSTP (int signum, siginfo_t *info, void *context) {
 * Função: capturaSigCHLD (int, siginfo_t)
 * Descrição: Captura o signal SIGCHLD
 */
+
 void Signal_capturaSigCHLD (int signum, siginfo_t *info, void *context) {
-	Tela_apagaCaracteres(TERMINAL_TAMANHOLINHA);
 	//Variáveis	
 	int estado;
 	Job *jobAux;
 
-	if(waitpid(-1,&estado,WNOHANG)>0) {
-		//while(waitpid(-1,NULL,WNOHANG) > 0) {
-		//
+	//Aguarda o filho enviar algum sinal
+	waitpid(-1*(info->si_pid),&estado,WUNTRACED | WCONTINUED | WNOHANG);
 
-	
-		//Busca PID
-		jobAux = Jobs_retornaJobComPID(&Jobs,info->si_pid);
-	
-		//Coloca o terminal em modo canônico
-		Canonical_setCanonicalMode();
+	//Busca PID
+	jobAux = Jobs_retornaJobComPID(&Jobs,info->si_pid);
 
-		//A Job está PARADA
-		if (WIFSTOPPED(estado)) {
-			jobAux->status = BACKGROUND;
-			jobAux->statusExecucao = PAUSADO;
+	//A Job está PARADA (Comando digitado: Ctrl+Z)
+	if (WIFSTOPPED(estado)) {
+		//Atualiza status da Job
+		jobAux->status = BACKGROUND;
+		jobAux->statusExecucao = PAUSADO;
+	}
+	//A Job está RODANDO (Comando digitado: fg)
+	else if (WIFCONTINUED(estado)) {
+		//Atualiza status da Job
+		jobAux->statusExecucao = RODANDO;
+		jobAux->status = FOREGROUND;
 
-			//Ativa o modo não-canônico
-			Canonical_setCanonicalMode();
-		}
-		//A Job está RODANDO
-		else if (WIFCONTINUED(estado)) {
-			jobAux->statusExecucao = RODANDO;
-		}
-		//A Job TERMINOU
-		else {
-			jobAux->statusExecucao = TERMINOU;
-			jobAux->status = BACKGROUND;
-		}
+		//Chama um novo wait que não retornará imediatamente
+		waitpid(-1*(info->si_pid),&estado,WUNTRACED | WCONTINUED);
+		
+	}
+	//A Job TERMINOU (Programa encerrado)
+	else {
+		//Atualiza status da Job
+		jobAux->statusExecucao = TERMINOU;
+		jobAux->status = BACKGROUND;
 	}
 }
 
