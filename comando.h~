@@ -20,7 +20,7 @@ int Comando_isBuiltIn (char **Parametro);
 void Comando_rodaBuiltIn (char **Parametro);
 
 /*
-* Função: Comando_rodaLinhaComando (char*, char**, int, int, int)
+* Função: Comando_rodaLinhaComando (char*, char**, int, int)
 * Descrição: Roda os comandos não built-in
 */
-int Comando_rodaLinhaComando (char **Parametro, int numParametros, int status);
+int Comando_rodaLinhaComando (char **Parametro, int status);

@@ -164,7 +164,7 @@ int Comando_rodaLinhaComando (char **Parametro, int numParametros, int status) {
 		//Espera em caso de FOREGROUND
 		if(status == FOREGROUND) waitpid(pidNovoProcesso, NULL, 0);
 		else {
-			//return 1;
+			/return 1;
 			Jobs_imprimeJobs(Jobs);
 			Tela_apagaCaracteres(TERMINAL_TAMANHOLINHA);
 		}

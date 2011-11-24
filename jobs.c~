@@ -194,8 +194,6 @@ void Jobs_colocaJobEmForeground (JobHeader *L, pid_t pid) {
 			//Atualiza job
 			jobAux->status = FOREGROUND;
 			jobAux->statusExecucao = RODANDO;
-			
-			//Continua a execução do processo			
 			kill(jobAux->pid,SIGCONT);			
 			return;
 		}

@@ -429,7 +429,6 @@ void Terminal_InterpretaLinhaComando (char *LinhaComando, char **LinhasComando) 
 * Função: Terminal_modoBackground(pid_t)
 * Descrição: Simula modo Background da Shell (só interpreta teclas de comando)
 */
-/*
 void Terminal_modoBackground(pid_t pid) {
 	//Variáveis
 	int countTeclas = 0;
@@ -486,4 +485,3 @@ void Terminal_modoBackground(pid_t pid) {
 	printf("\n");
 	Tela_apagaCaracteres(TERMINAL_TAMANHOLINHA);
 }
-*/

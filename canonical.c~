@@ -7,7 +7,6 @@
 //Inclusão de bibliotecas próprias
 #include "canonical.h"
 
-
 /*
 * Função: setNonCanonicalMode (void)
 * Descrição: Ativa o modo não-canônico

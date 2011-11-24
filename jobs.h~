@@ -48,7 +48,6 @@ typedef struct jobHeader {
 	int numJobs;
 	Job *primeiroJob;
 	Job *ultimoJob;
-	Job *currentForegroundJob;
 }JobHeader;
 
 //Lista GLOBAL de Jobs

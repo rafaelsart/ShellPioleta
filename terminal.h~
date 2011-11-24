@@ -39,7 +39,7 @@ void Terminal_processaTeclaHistorico (char **LinhasComando, char *LinhaComando, 
 * Função: Terminal_processaTeclaComando (char*, char*, int)
 * Descrição: Processa as teclas de comando enviadas pelo usuário
 */
-void Terminal_processaTeclaComando (char *LinhaComando, char *tecla, int contadorTeclas, int modoBackground);
+void Terminal_processaTeclaComando (char *LinhaComando, char *tecla, int contadorTeclas);
 
 
 char* compararTab(char *buffer);
@@ -51,10 +51,10 @@ char* compararTab(char *buffer);
 char* Terminal_processaLinha (char **LinhasComando, int numLinhasComando);
 
 /*
-* Função: Terminal_InterpretaLinhaComando (char*, char**)
+* Função: Terminal_InterpretaLinhaComando (char*, char**, int)
 * Descrição: Interpreta a Linha de Comando digitada
 */
-void Terminal_InterpretaLinhaComando (char *LinhaComando, char **LinhasComando);
+void Terminal_InterpretaLinhaComando (char *LinhaComando, char **LinhasComando, int modoBackground);
 
 /*
 * Função: Terminal_modoBackground(pid_t)

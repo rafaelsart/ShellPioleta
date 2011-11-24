@@ -79,6 +79,7 @@ void Signal_capturaSigCHLD (int signum, siginfo_t *info, void *context) {
 
 		//A Job está PARADA
 		if (WIFSTOPPED(estado)) {
+			//printf("\nWIFSTOPPED\n");
 			jobAux->status = BACKGROUND;
 			jobAux->statusExecucao = PAUSADO;
 
@@ -87,10 +88,18 @@ void Signal_capturaSigCHLD (int signum, siginfo_t *info, void *context) {
 		}
 		//A Job está RODANDO
 		else if (WIFCONTINUED(estado)) {
+			//printf("\nWIFCONTINUED\n");
 			jobAux->statusExecucao = RODANDO;
+		
+			//Ativa o modo não-canônico
+			//Canonical_setNonCanonicalMode();
+			/*
+			//Coloca o terminal em Modo Background
+			Terminal_modoBackground(info->si_pid); // PRA SEMPRE AQUI*/
 		}
 		//A Job TERMINOU
 		else {
+			//printf("\nWIFNADA\n");
 			jobAux->statusExecucao = TERMINOU;
 			jobAux->status = BACKGROUND;
 		}
