@@ -62,7 +62,7 @@ int main(void) {
 		
 		//Lê a Linha de Comando
 		LinhaComando = Terminal_processaLinha(LinhasComando, numLinhasComando);
-		printf("\nae\n");
+
 		//Retorna ao modo canônico
 		Canonical_setCanonicalMode();
 

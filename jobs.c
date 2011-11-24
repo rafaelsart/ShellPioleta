@@ -182,21 +182,39 @@ void Jobs_colocaJobEmForeground (JobHeader *L, pid_t pid) {
 			//O Job já terminou			
 			if(jobAux->statusExecucao == TERMINOU) {
 				printf("Job ja terminou.\n");
+				//Retorno
 				return;
 			}
 			
 			//O job já está em FOREGROUND
 			if(jobAux->status == FOREGROUND) {
 				printf("Job ja esta rodando em foreground.\n");
+				//Retorno
 				return;
 			}
-		
+
+			//O job está RODANDO em BACKGROUND
+			if(jobAux->statusExecucao == RODANDO && jobAux->status == BACKGROUND) {
+				//Atualiza job
+				jobAux->status = FOREGROUND;
+				jobAux->statusExecucao = RODANDO;
+
+				//FALTA ALGUMA COISA
+				kill(jobAux->pid,SIGCONT);
+
+				//Retorno
+				return ;
+			}
+
 			//Atualiza job
 			jobAux->status = FOREGROUND;
 			jobAux->statusExecucao = RODANDO;
-			
-			//Continua a execução do processo			
-			kill(jobAux->pid,SIGCONT);			
+
+			printf("\n%d\n",jobAux->pid);
+			//Continua a execução da Job
+			kill(jobAux->pid,SIGCONT);
+
+			//Retorno
 			return;
 		}
 		//Percorre a lista

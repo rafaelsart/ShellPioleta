@@ -12,7 +12,6 @@
 //Inclusão de bibliotecas próprias
 #include "jobs.h"
 #include "terminal.h"
-#include "canonical.h"
 #include "signal_capture.h"
 #include "tela.h"
 
@@ -67,6 +66,7 @@ void Signal_capturaSigCHLD (int signum, siginfo_t *info, void *context) {
 	Job *jobAux;
 
 	//Aguarda o filho enviar algum sinal
+	printf("\nNo. CHLD: %d\n",info->si_pid);
 	waitpid(-1*(info->si_pid),&estado,WUNTRACED | WCONTINUED | WNOHANG);
 
 	//Busca PID
