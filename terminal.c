@@ -6,7 +6,6 @@
 
 //Inclusão de bibliotecas próprias
 #include "tela.h"
-#include "erros.h" 
 #include "alocacao.h"
 #include "signal_capture.h"
 #include "canonical.h"

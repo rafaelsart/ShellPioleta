@@ -5,7 +5,6 @@
 
 //Inclusão de bibliotecas próprias
 #include "alocacao.h"
-#include "erros.h"
 
 /*
 * Função		: Alocacao_alocaVetor (int)

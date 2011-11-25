@@ -187,5 +187,5 @@ void Comando_rodaLinhaComando (char **Parametro, int numParametros, int status) 
 	free(Path);
 
 	//Retorno
-	return 1;
+	return;
 }

@@ -13,7 +13,6 @@
 //Inclusão de bibliotecas próprias
 #include "colors.h"
 #include "tela.h"
-#include "erros.h"
 #include "alocacao.h"
 #include "jobs.h"
 #include "signal_capture.h"

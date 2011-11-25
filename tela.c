@@ -6,7 +6,6 @@
 
 //Inclusão de bibliotecas próprias
 #include "tela.h"
-#include "erros.h"
 #include "colors.h"
 #include "terminal.h"
 #include "alocacao.h"

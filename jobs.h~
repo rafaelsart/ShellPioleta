@@ -18,6 +18,8 @@
 #define PAUSADO 0
 #define TERMINOU -1
 
+
+
 /*
 * Estrutura	: Job
 * Descrição	: Jobs
@@ -38,6 +40,8 @@ typedef struct job {
 	struct job *prox;
 } Job;
 
+
+
 /*
 * Estrutura	: JobHeader
 * Descrição	: Nó-cabeça da Lista de Jobs
@@ -53,8 +57,11 @@ typedef struct jobHeader {
 	Job *currentForegroundJob;
 } JobHeader;
 
+
+
 //Lista GLOBAL de Jobs
 JobHeader Jobs;
+
 
 
 /*

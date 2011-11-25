@@ -72,7 +72,7 @@ JobHeader Jobs;
 * pid_t pid	: ID da Job a ser buscada
 * Retorno	: void
 */
-int Jobs_adicionaJob (JobHeader *L, char *comando, pid_t pid, int status, int statusExecucao);
+void Jobs_adicionaJob (JobHeader *L, char *comando, pid_t pid, int status, int statusExecucao);
 
 
 

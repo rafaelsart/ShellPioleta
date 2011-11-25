@@ -11,7 +11,6 @@
 
 //Inclusão de bibliotecas próprias
 #include "jobs.h"
-#include "erros.h"
 #include "terminal.h"
 #include "tela.h"
 
@@ -23,7 +22,7 @@
 * pid_t pid	: ID da Job a ser buscada
 * Retorno	: void
 */
-int Jobs_adicionaJob (JobHeader *L, char *comando, pid_t pid, int status, int statusExecucao) {
+void Jobs_adicionaJob (JobHeader *L, char *comando, pid_t pid, int status, int statusExecucao) {
 	//Variáveis
 	Job *jobAux;
 	Job *jobNovo;
@@ -32,7 +31,7 @@ int Jobs_adicionaJob (JobHeader *L, char *comando, pid_t pid, int status, int st
 	jobAux = (Job*) malloc(sizeof(struct job));
 
 	//Falha na alocação	
-	if(jobAux == NULL) return ERRO_NAO_ALOCADO;
+	if(jobAux == NULL) return;
 	//Alocado com sucesso	
 	else {
 		//Informações de jobAux
@@ -57,8 +56,6 @@ int Jobs_adicionaJob (JobHeader *L, char *comando, pid_t pid, int status, int st
 		}
 		//Atualiza número de Jobs
 		L->numJobs++;
-		//Retorna SUCESSO
-		return ERRO_SUCESSO;
 	}
 }
 

@@ -118,7 +118,7 @@ void Terminal_processaTeclaComando (char *LinhaComando, char *tecla, int contado
 	jobAux = Jobs_retornaJobEmForeground(Jobs);
 
 	//Comando CTRL+L (Limpa a tela)
-	if((tecla[0] == 12 || tecla[1] == 12 || tecla[2] == 12) && modoBackground == OFF) {
+	if(tecla[0] == 12 || tecla[1] == 12 || tecla[2] == 12) {
 		//Zera buffer das teclas
 		Tela_flushKeys(tecla);
 

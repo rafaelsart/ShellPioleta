@@ -58,11 +58,11 @@ void Tela_apagaLinha(void) {
 */
 void Tela_limpaTela(void) {
 	//Imprime conjunto de linhas em branco
-	//puts("\n\n\n\n\n\n\n");
+	puts("\n\n\n\n\n\n\n");
 
-	///* BEGIN TEST
+	/* BEGIN TEST
 	system("clear");
-	//END TEST */
+	END TEST */
 }
 
 /*

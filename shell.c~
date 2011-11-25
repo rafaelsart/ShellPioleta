@@ -43,7 +43,7 @@ int main(void) {
 	numLinhasComando = 0;
 
 	//Limpa a tela
-	puts("\n\n\n\n\n\n\n");
+	Tela_limpaTela();
 
 	//Execução da rotina principal
 	while(loopProgram) {
