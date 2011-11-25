@@ -8,7 +8,7 @@ Prof. Marcelo Marleta
 DEVELOPMENT STATUS:
 
 BUILT-IN COMMANDS:
-Fully working. No know bugs.
+Fully working. No known bugs.
 
 NON BUILT-IN COMMANDS:
 Bug #1: 'sudo' command not working properly.
@@ -18,10 +18,10 @@ LINE HISTORY
 Fully working. Navigation through UP and DOWN keys.
 
 JOBS:
-Fully working. No know bugs.
+Fully working. No known bugs.
 
 SIGNALS:
-Fully working. No know bugs.
+Fully working. No known bugs.
 
 
 
