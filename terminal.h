@@ -18,76 +18,88 @@
 
 
 
-/* Variável global Path */
+/** Variável global Path */
 char **Path;
 
 
 
-/* 
-* Função		: Terminal_insereLinhaNoHistorico (char*, char**, int)
-* Descrição		: Insere uma Linha de Comando no Conjunto das Linhas de Comando (Histórico)
-* Parâmetros:
-* char *LinhaComando	: Linha de Comando digitada pelo usuário
-* char **LinhasComando	: Conjunto das Linhas de Comando (Histórico)
-* int numLinhasComando	: Número de Linhas de Comando
+/**
+* Insere uma Linha de Comando no Conjunto das Linhas de Comando (Histórico)
+* 
+@param *LinhaComando Linha de Comando digitada pelo usuário
+*
+@param **LinhasComando Conjunto das Linhas de Comando (Histórico)
+*
+@param numLinhasComando Número de Linhas de Comando
+*
+@return void
 */
-int Terminal_insereLinhaNoHistorico (char *LinhaComando, char **LinhasComando, int numLinhasComando);
+void Terminal_insereLinhaNoHistorico (char *LinhaComando, char **LinhasComando, int numLinhasComando);
 
 
 
-/* BEGIN TEST
+/** BEGIN TEST
 char* compararTab(char *buffer);
 END TEST*/
 
 
 
-/*
-* Função		: Terminal_processaTeclaHistorico (char**, char*, char*, int*, int*, int)
-* Descrição		: Processa as Teclas de Navegação de Histórico enviadas pelo usuário durante a composição da Linha de Comando
-* Parâmetros:
-* char **LinhasComando	: Conjunto das Linhas de Comando
-* char *LinhaComando	: Linha de Comando (a ser modificada)
-* char *tecla		: Buffer contendo a Tecla capturada
-* int *contadorTeclas	: Número de caracteres da Linha de Comando em composição (a ser modificado)
-* int *linesOver	: Número de Linhas além da atual (a ser modificado)
-* int numLinhasComando	: Número de Linhas de Comando
-* Retorno		: void
+/**
+* Processa as Teclas de Navegação de Histórico enviadas pelo usuário durante a composição da Linha de Comando
+* 
+@param **LinhasComando Conjunto das Linhas de Comando
+*
+@param *LinhaComando Linha de Comando (a ser modificada)
+*
+@param *tecla	 Buffer contendo a Tecla capturada
+*
+@param *contadorTeclas Número de caracteres da Linha de Comando em composição (a ser modificado)
+*
+@param *linesOver Número de Linhas além da atual (a ser modificado)
+*
+@param numLinhasComando Número de Linhas de Comando
+*
+@return void
 */
 void Terminal_processaTeclaHistorico (char **LinhasComando, char *LinhaComando, char *tecla, int *contadorTeclas, int *linesOver, int numLinhasComando);
 
 
 
-/*
-* Função		: Terminal_processaTeclaComando (char*, char*, int)
-* Descrição		: Processa as Teclas de Comando enviadas pelo usuário durante a composição da Linha de Comando
-* Parâmetros:
-* char *LinhaComando	: Linha de Comando digitada pelo usuário até este instante
-* char *tecla		: Buffer contendo a Tecla capturada
-* int contadorTeclas	: Número de caracteres da Linha de Comando em composição
-* Retorno		: void
+/**
+* Processa as Teclas de Comando enviadas pelo usuário durante a composição da Linha de Comando
+* 
+@param *LinhaComando Linha de Comando digitada pelo usuário até este instante
+*
+@param *tecla	 Buffer contendo a Tecla capturada
+*
+@param contadorTeclas Número de caracteres da Linha de Comando em composição
+*
+@return void
 */
 void Terminal_processaTeclaComando (char *LinhaComando, char *tecla, int contadorTeclas);
 
 
 
-/*
-* Função		: Terminal_processaLinha (char*, int)
-* Descrição		: Processa a Linha de Comando inserida pelo usuário, no modo Não-Canônico
-* Parâmetros:
-* char **LinhasComando	: Conjunto das Linhas de Comando
-* int numLinhasComando	: Número de Linhas de Comando
-* Retorno		: Linha de Comando processada
+/**
+* Processa a Linha de Comando inserida pelo usuário, no modo Não-Canônico
+* 
+@param **LinhasComando Conjunto das Linhas de Comando
+*
+@param numLinhasComando Número de Linhas de Comando
+*
+@return Linha de Comando processada
 */
 char* Terminal_processaLinha (char **LinhasComando, int numLinhasComando);
 
 
 
-/*
-* Função		: Terminal_InterpretaLinhaComando (char*, char**)
-* Descrição		: Interpreta a Linha de Comando digitada e executa os comandos conforme necessário
-* Parâmetros:
-* char *LinhaComando	: Linha de Comando digitada
-* char **LinhasComando	: Conjunto de Linhas de Comando (para verificação de '&' da linha anterior)
-* Retorno		: void
+/**
+* Interpreta a Linha de Comando digitada e executa os comandos conforme necessário
+* 
+@param *LinhaComando Linha de Comando digitada
+*
+@param **LinhasComando Conjunto de Linhas de Comando (para verificação de '&' da linha anterior)
+*
+@return void
 */
 void Terminal_InterpretaLinhaComando (char *LinhaComando, char **LinhasComando);

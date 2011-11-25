@@ -20,88 +20,88 @@
 
 
 
-/*
-* Função	: Color_red (char[])
-* Descrição	: Imprime uma string na tela, em vermelho
-* Parâmetros:
-* char string[]	: String a ser impressa
-* Retorno	: void
+/**
+* Imprime uma string na tela, em vermelho
+* 
+@param string[] String a ser impressa
+*
+@return void
 */
 void Color_red (char string[]);
 
 
 
-/*
-* Função	: Color_red (char[])
-* Descrição	: Imprime uma string na tela, em verde
-* Parâmetros:
-* char string[]	: String a ser impressa
-* Retorno	: void
+/**
+* Imprime uma string na tela, em verde
+* 
+@param string[] String a ser impressa
+*
+@return void
 */
 void Color_green (char string[]);
 
 
 
-/*
-* Função	: Color_red (char[])
-* Descrição	: Imprime uma string na tela, em laranja
-* Parâmetros:
-* char string[]	: String a ser impressa
-* Retorno	: void
+/**
+* Imprime uma string na tela, em laranja
+* 
+@param string[] String a ser impressa
+*
+@return void
 */
 void Color_orange (char string[]);
 
 
 
-/*
-* Função	: Color_red (char[])
-* Descrição	: Imprime uma string na tela, em azul
-* Parâmetros:
-* char string[]	: String a ser impressa
-* Retorno	: void
+/**
+* Imprime uma string na tela, em azul
+* 
+@param string[] String a ser impressa
+*
+@return void
 */
 void Color_blue(char string[]);
 
 
 
-/*
-* Função	: Color_red (char[])
-* Descrição	: Imprime uma string na tela, em rosa
-* Parâmetros:
-* char string[]	: String a ser impressa
-* Retorno	: void
+/**
+* Imprime uma string na tela, em rosa
+* 
+@param string[] String a ser impressa
+*
+@return void
 */
 void Color_pink(char string[]);
 
 
 
-/*
-* Função	: Color_red (char[])
-* Descrição	: Imprime uma string na tela, em ciano
-* Parâmetros:
-* char string[]	: String a ser impressa
-* Retorno	: void
+/**
+* Imprime uma string na tela, em ciano
+* 
+@param string[] String a ser impressa
+*
+@return void
 */
 void Color_cyan(char string[]);
 
 
 
-/*
-* Função	: Color_red (char[])
-* Descrição	: Imprime uma string na tela, em branco
-* Parâmetros:
-* char string[]	: String a ser impressa
-* Retorno	: void
+/**
+* Imprime uma string na tela, em branco
+* 
+@param string[] String a ser impressa
+*
+@return void
 */
 void Color_white (char string[]);
 
 
 
-/*
-* Função	: Color_red (char[])
-* Descrição	: Imprime uma string na tela, em preto
-* Parâmetros:
-* char string[]	: String a ser impressa
-* Retorno	: void
+/**
+* Imprime uma string na tela, em preto
+* 
+@param string[] String a ser impressa
+*
+@return void
 */
 void Color_black (char string[]);

@@ -23,15 +23,6 @@ static struct sigaction oldTSTP;
 static struct sigaction CHLD;
 static struct sigaction oldCHLD;
 
-/*
-* Função		: Signal_capturaSigTSTP (int, siginfo_t, void*)
-* Descrição		: Captura o sinal de Interrupção Assistida (SIGTSTP) e trata-o
-* Parâmetros:
-* int signum		: ID do processo que recebeu o sinal
-* siginfo_t *info	: Informações detalhadas do processo que recebeu o sinal
-* void *context		: Não utilizado
-* Retorno		: void
-*/
 void Signal_capturaSigTSTP (int signum, siginfo_t *info, void *context) {
 	//Variáveis
 	Job *jobAux;
@@ -57,15 +48,6 @@ void Signal_capturaSigTSTP (int signum, siginfo_t *info, void *context) {
 	}
 }
 
-/*
-* Função		: Signal_capturaSigCHLD (int, siginfo_t, void*)
-* Descrição		: Captura o sinal de Alteração de um Processo-Filho (SIGCHLD) e trata-o
-* Parâmetros:
-* int signum		: ID do processo que recebeu o sinal
-* siginfo_t *info	: Informações detalhadas do processo que recebeu o sinal
-* void *context		: Não utilizado
-* Retorno		: void
-*/
 void Signal_capturaSigCHLD (int signum, siginfo_t *info, void *context) {
 	//Variáveis	
 	int estado;
@@ -104,12 +86,6 @@ void Signal_capturaSigCHLD (int signum, siginfo_t *info, void *context) {
 	}
 }
 
-/*
-* Função	: Signal_instalacao (void)
-* Descrição	: Efetua a instalação dos Handlers dos sinais desejados
-* Parâmetros	: void
-* Retorno	: void
-*/
 void Signal_Instalacao(void) {
 	//Configura handler TSTP
 	sigemptyset(&TSTP.sa_mask);

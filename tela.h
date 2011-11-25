@@ -7,52 +7,48 @@
 #include <stdlib.h>
 #include <string.h>
 
-/*
-* Função		: Tela_flushKeys (char*)
-* Descrição		: Limpa o buffer reservado para determinadas teclas
-* Parâmetros:
-* char *tecla		: Vetor contendo o buffer das teclas pré-determinadas
-* Retorno		: void
+/**
+* Limpa o buffer reservado para determinadas teclas
+* 
+@param *tecla	 Vetor contendo o buffer das teclas pré-determinadas
+@return void
 */
 void Tela_flushKeys(char *tecla);
 
 
 
-/*
-* Função		: Tela_apagaCaracteres (int)
-* Descrição		: Apaga um número desejado de caracteres na tela
-* Parâmetros:
-* int numCaracteres	: Número de teclas a serem apagadas
-* Retorno		: void
+/**
+* Apaga um número desejado de caracteres na tela
+* 
+@param numCaracteres Número de teclas a serem apagadas
+*
+@return void
 */
 void Tela_apagaCaracteres(int numCaracteres);
 
 
 
-/*
-* Função		: Tela_apagaLinha (void)
-* Descrição		: Apaga uma linha inteira da tela
-* Parâmetros		: void
-* Retorno		: void
+/**
+* Apaga uma linha inteira da tela
+* 
+@return void
 */
 void Tela_apagaLinha(void);
 
 
 
-/*
-* Função		: Tela_limpaTela (void)
-* Descrição		: Limpa a tela do Terminal
-* Parâmetros		: void
-* Retorno		: void
+/**
+* Limpa a tela do Terminal
+* 
+@return void
 */
 void Tela_limpaTela(void);
 
 
 
-/*
-* Função		: Tela_imprimeShell (void)
-* Descrição		: Imprime a Shell
-* Parâmetros		: void
-* Retorno		: void
+/**
+* Imprime a Shell
+* 
+@return void
 */
 void Tela_imprimeShell(void);

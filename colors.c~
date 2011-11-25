@@ -6,6 +6,13 @@
 //Inclusão de bibliotecas próprias
 #include "colors.h"
 
+/**
+* Imprime uma string na tela, em vermelho
+* 
+@param string[] String a ser impressa
+*
+@return void
+*/
 void Color_red (char string[]) {
 	printf("%s%s $%s ", C_RED, string, RESTORE);
 }

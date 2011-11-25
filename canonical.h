@@ -13,20 +13,18 @@ struct termios oldtio;
 
 
 
-/*
-* Função	: Canonical_setNonCanonicalMode (void)
-* Descrição	: Coloca o Terminal em Modo Não-Canônico
-* Parâmetros	: void
-* Retorno	: void
+/**
+* Coloca o Terminal em Modo Não-Canônico
+*
+@return void
 */
 void Canonical_setNonCanonicalMode (void);
 
 
 
-/*
-* Função	: Canonical_setCanonicalMode (void)
-* Descrição	: Coloca o Terminal em Modo Canônico
-* Parâmetros	: void
-* Retorno	: void
+/**
+* Coloca o Terminal em Modo Canônico
+*
+@return void
 */
 void Canonical_setCanonicalMode(void);

@@ -13,13 +13,6 @@
 #include "terminal.h"
 #include "comando.h"
 
-/*
-* Função		: Comando_isBuiltIn (char**)
-* Descrição		: Identifica se a Linha de Comando contém um comando Built-In
-* Parâmetros:
-* char **Parametro	: Linha de Comando convertida em um vetor para cada palavra
-* Retorno		: 1 se o comando for Built-In, e 0 em caso contrário
-*/
 int Comando_isBuiltIn (char **Parametro) {
 	//cd
 	if(strcmp(Parametro[0], "cd") == 0) return 1;
@@ -45,13 +38,6 @@ int Comando_isBuiltIn (char **Parametro) {
 	return 0;
 }
 
-/*
-* Função		: Comando_rodaBuiltIn (char**)
-* Descrição		: Executa um comando Built-In
-* Parâmetros:
-* char **Parametro	: Linha de Comando convertida em um vetor para cada palavra
-* Retorno		: void
-*/
 void Comando_rodaBuiltIn (char **Parametro) {
 	//Variáveis
 	pid_t pid;
@@ -100,15 +86,6 @@ void Comando_rodaBuiltIn (char **Parametro) {
 	}
 }
 
-/*
-* Função		: Comando_rodaBuiltIn (char**, int, int)
-* Descrição		: Executa comandos do Sistema (com exceção dos Built-In)
-* Parâmetros:
-* char **Parametro	: Linha de Comando convertida em um vetor para cada palavra
-* int numParametros	: Número de parâmetros (afim de facilitar a manipulação dos parâmetros
-* int status		: Modo de Execução do Comando
-* Retorno		: void
-*/
 void Comando_rodaLinhaComando (char **Parametro, int numParametros, int status) {
 	//Variáveis
 	pid_t pidNovoProcesso;

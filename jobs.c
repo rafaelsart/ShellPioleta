@@ -14,14 +14,6 @@
 #include "terminal.h"
 #include "tela.h"
 
-/*
-* Função	: Jobs_adicionaJob (JobHeader, pid_t)
-* Descrição	: Remove a Job buscada da Lista de Jobs
-* Parâmetros:
-* JobHeader *L	: Nó-Cabeça da Lista de Jobs (modificado em caso de remoção bem-sucedida)
-* pid_t pid	: ID da Job a ser buscada
-* Retorno	: void
-*/
 void Jobs_adicionaJob (JobHeader *L, char *comando, pid_t pid, int status, int statusExecucao) {
 	//Variáveis
 	Job *jobAux;
@@ -59,14 +51,6 @@ void Jobs_adicionaJob (JobHeader *L, char *comando, pid_t pid, int status, int s
 	}
 }
 
-/*
-* Função	: Jobs_removeJob (JobHeader, pid_t)
-* Descrição	: Remove a Job buscada da Lista de Jobs
-* Parâmetros:
-* JobHeader *L	: Nó-Cabeça da Lista de Jobs (modificado em caso de remoção bem-sucedida)
-* pid_t pid	: ID da Job a ser buscada
-* Retorno	: void
-*/
 void Jobs_removeJob (JobHeader *L, pid_t pid) {
 	//Variáveis
 	Job *jobAux;
@@ -108,14 +92,6 @@ void Jobs_removeJob (JobHeader *L, pid_t pid) {
 	}
 }
 
-/*
-* Função	: Jobs_retornaJobComPID (JobHeader, pid_t)
-* Descrição	: Retorna a Job com o PID buscado
-* Parâmetros:
-* JobHeader *L	: Nó-Cabeça da Lista de Jobs
-* pid_t pid	: ID da Job a ser buscada
-* Retorno	: Job Buscada
-*/
 Job* Jobs_retornaJobComPID (JobHeader *L, pid_t pid) {
 	//Variáveis	
 	Job *jobAux;
@@ -131,16 +107,7 @@ Job* Jobs_retornaJobComPID (JobHeader *L, pid_t pid) {
 	//Não encontrado
 	return NULL;
 }
-	
 
-/*
-* Função	: Jobs_colocaJobEmBackground (JobHeader*, pid_t)
-* Procura pela Job de ID pid e coloca em BACKGROUND com as devidas alterações
-* Parâmetros:
-* JobHeader L	: Nó-Cabeça da Lista de Jobs
-* pid_t pid	: ID da Job a ser colocada em BACKGROUND
-* Retorno	: void
-*/
 void Jobs_colocaJobEmBackground (JobHeader *L, pid_t pid) {
 	//Variáveis
 	Job *jobAux;
@@ -172,14 +139,6 @@ void Jobs_colocaJobEmBackground (JobHeader *L, pid_t pid) {
 	printf("\nJob nao encontrado.\n");
 }
 
-/*
-* Função	: Jobs_colocaJobEmForeground (JobHeader*, pid_t)
-* Procura pela Job de ID pid e coloca em FOREGROUND com as devidas alterações
-* Parâmetros:
-* JobHeader L	: Nó-Cabeça da Lista de Jobs
-* pid_t pid	: ID da Job a ser colocada em FOREGROUND
-* Retorno	: void
-*/
 void Jobs_colocaJobEmForeground (JobHeader *L, pid_t pid) {
 	//Variáveis
 	Job *jobAux;
@@ -249,13 +208,6 @@ void Jobs_colocaJobEmForeground (JobHeader *L, pid_t pid) {
 	printf("\nJob nao encontrado.\n");
 }
 
-/* 
-* Função	: Jobs_retornaJobEmForeground (JobHeader)
-* Descrição	: Retorna a Job cujo estado é FOREGROUND
-* Parâmetros:
-* JobHeader L	: Nó-Cabeça da Lista de Jobs
-* Retorno	: Job pertencente à L cujo estado é FOREGROUND
-*/
 Job* Jobs_retornaJobEmForeground (JobHeader L) {
 	//Armazena primeiro elemento da lista
 	Job *jobAux = L.primeiroJob;
@@ -270,13 +222,6 @@ Job* Jobs_retornaJobEmForeground (JobHeader L) {
 	return NULL;
 }
 
-/*
-* Função	: Jobs_imprimeJobs(JobHeader)
-* Descrição	: Imprime Lista de Jobs na Tela
-* Parâmetros:
-* JobHeader L	: Nó-Cabeça da Lista de Jobs
-* Retorno	: void
-*/
 void Jobs_imprimeJobs(JobHeader L) {
 	//Variáveis
 	int iContador = 0;

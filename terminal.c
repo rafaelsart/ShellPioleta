@@ -13,20 +13,9 @@
 #include "comando.h"
 #include "jobs.h"
 
-/* 
-* Função		: Terminal_insereLinhaNoHistorico (char*, char**, int)
-* Descrição		: Insere uma Linha de Comando no Conjunto das Linhas de Comando (Histórico)
-* Parâmetros:
-* char *LinhaComando	: Linha de Comando digitada pelo usuário
-* char **LinhasComando	: Conjunto das Linhas de Comando (Histórico)
-* int numLinhasComando	: Número de Linhas de Comando
-*/
-int Terminal_insereLinhaNoHistorico (char *LinhaComando, char **LinhasComando, int numLinhasComando) {
+void Terminal_insereLinhaNoHistorico (char *LinhaComando, char **LinhasComando, int numLinhasComando) {
 	//Insere LinhaComando na Lista de Comandos	
 	strcpy(LinhasComando[numLinhasComando],LinhaComando);
-	
-	//Retorno
-	return 0;
 }
 
 /* BEGIN TEST
@@ -37,18 +26,6 @@ char* compararTab(char *buffer) {
 }
 END TEST*/
 
-/*
-* Função		: Terminal_processaTeclaHistorico (char**, char*, char*, int*, int*, int)
-* Descrição		: Processa as Teclas de Navegação de Histórico enviadas pelo usuário durante a composição da Linha de Comando
-* Parâmetros:
-* char **LinhasComando	: Conjunto das Linhas de Comando
-* char *LinhaComando	: Linha de Comando (a ser modificada)
-* char *tecla		: Buffer contendo a Tecla capturada
-* int *contadorTeclas	: Número de caracteres da Linha de Comando em composição (a ser modificado)
-* int *linesOver	: Número de Linhas além da atual (a ser modificado)
-* int numLinhasComando	: Número de Linhas de Comando
-* Retorno		: void
-*/
 void Terminal_processaTeclaHistorico (char **LinhasComando, char *LinhaComando, char *tecla, int *contadorTeclas, int *linesOver, int numLinhasComando) {
 	//Tecla CIMA
 	if(tecla[0] == 27 && tecla[1] == 91 && tecla[2] == 65) {
@@ -101,15 +78,6 @@ void Terminal_processaTeclaHistorico (char **LinhasComando, char *LinhaComando, 
 	}
 }
 
-/*
-* Função		: Terminal_processaTeclaComando (char*, char*, int)
-* Descrição		: Processa as Teclas de Comando enviadas pelo usuário durante a composição da Linha de Comando
-* Parâmetros:
-* char *LinhaComando	: Linha de Comando digitada pelo usuário até este instante
-* char *tecla		: Buffer contendo a Tecla capturada
-* int contadorTeclas	: Número de caracteres da Linha de Comando em composição
-* Retorno		: void
-*/
 void Terminal_processaTeclaComando (char *LinhaComando, char *tecla, int contadorTeclas) {
 	Job *jobAux;
 
@@ -179,14 +147,6 @@ void Terminal_processaTeclaComando (char *LinhaComando, char *tecla, int contado
 	}
 }
 
-/*
-* Função		: Terminal_processaLinha (char*, int)
-* Descrição		: Processa a Linha de Comando inserida pelo usuário, no modo Não-Canônico
-* Parâmetros:
-* char **LinhasComando	: Conjunto das Linhas de Comando
-* int numLinhasComando	: Número de Linhas de Comando
-* Retorno		: Linha de Comando processada
-*/
 char* Terminal_processaLinha (char **LinhasComando, int numLinhasComando) {
 	//Variáveis
 	int keyIndex, contadorTeclas, linesOver;
@@ -356,14 +316,6 @@ char* Terminal_processaLinha (char **LinhasComando, int numLinhasComando) {
 	return LinhaComando;
 }
 
-/*
-* Função		: Terminal_InterpretaLinhaComando (char*, char**)
-* Descrição		: Interpreta a Linha de Comando digitada e executa os comandos conforme necessário
-* Parâmetros:
-* char *LinhaComando	: Linha de Comando digitada
-* char **LinhasComando	: Conjunto de Linhas de Comando (para verificação de '&' da linha anterior)
-* Retorno		: void
-*/
 void Terminal_InterpretaLinhaComando (char *LinhaComando, char **LinhasComando) {
 	//Variáveis	
 	int iContador, numParametros, Status;

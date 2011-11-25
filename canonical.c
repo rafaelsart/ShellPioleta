@@ -7,12 +7,6 @@
 //Inclusão de bibliotecas próprias
 #include "canonical.h"
 
-/*
-* Função	: Canonical_setNonCanonicalMode (void)
-* Descrição	: Coloca o Terminal em Modo Não-Canônico
-* Parâmetros	: void
-* Retorno	: void
-*/
 void Canonical_setNonCanonicalMode (void) {
 	struct termios newtio;
 	tcgetattr(0,&oldtio);
@@ -28,12 +22,6 @@ void Canonical_setNonCanonicalMode (void) {
 	return;
 }
 
-/*
-* Função	: Canonical_setCanonicalMode (void)
-* Descrição	: Coloca o Terminal em Modo Canônico
-* Parâmetros	: void
-* Retorno	: void
-*/
 void Canonical_setCanonicalMode(void) {
 	tcflush(0, TCIOFLUSH);
     	tcsetattr(0,TCSANOW,&oldtio);
