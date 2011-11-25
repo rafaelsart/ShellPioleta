@@ -15,25 +15,28 @@
 #include "signal_capture.h"
 #include "tela.h"
 
-
-
-//Sigactions TSTP
+//Estrutura		: Sigactions correspondentes ao SIGTSTP
 static struct sigaction TSTP;
 static struct sigaction oldTSTP;
 
-//Sigactions CHLD
+//Estrutura		: Sigactions correspondentes ao SIGCHLD
 static struct sigaction CHLD;
 static struct sigaction oldCHLD;
 
 /*
-* Função: capturaSigTSTP (int)
-* Descrição: Captura o signal SIGTSTP
+* Função		: Signal_capturaSigTSTP (int, siginfo_t, void*)
+* Descrição		: Captura o sinal de Interrupção Assistida (SIGTSTP) e trata-o
+* Parâmetros:
+* int signum		: ID do processo que recebeu o sinal
+* siginfo_t *info	: Informações detalhadas do processo que recebeu o sinal
+* void *context		: Não utilizado
+* Retorno		: void
 */
 void Signal_capturaSigTSTP (int signum, siginfo_t *info, void *context) {
 	//Variáveis
-	Job* jobAux;
+	Job *jobAux;
 
-	//Busca Job em Foreground
+	//Busca Job em FOREGROUND
 	jobAux = Jobs_retornaJobEmForeground(Jobs);
 
 	//Não encontrado
@@ -41,9 +44,8 @@ void Signal_capturaSigTSTP (int signum, siginfo_t *info, void *context) {
 
 	//Encontrado
 	else {
+		//Coloca Job em BACKGROUND
 		Jobs_colocaJobEmBackground(&Jobs,jobAux->pid);
-		//Define status para background
-		//jobAux->status = BACKGROUND;
 		
 		//Pausa se a execução não terminou
 		if(jobAux->statusExecucao != TERMINOU) {
@@ -56,21 +58,27 @@ void Signal_capturaSigTSTP (int signum, siginfo_t *info, void *context) {
 }
 
 /*
-* Função: capturaSigCHLD (int, siginfo_t)
-* Descrição: Captura o signal SIGCHLD
+* Função		: Signal_capturaSigCHLD (int, siginfo_t, void*)
+* Descrição		: Captura o sinal de Alteração de um Processo-Filho (SIGCHLD) e trata-o
+* Parâmetros:
+* int signum		: ID do processo que recebeu o sinal
+* siginfo_t *info	: Informações detalhadas do processo que recebeu o sinal
+* void *context		: Não utilizado
+* Retorno		: void
 */
-
 void Signal_capturaSigCHLD (int signum, siginfo_t *info, void *context) {
 	//Variáveis	
 	int estado;
 	Job *jobAux;
 
 	//Aguarda o filho enviar algum sinal
-	printf("\nNo. CHLD: %d\n",info->si_pid);
 	waitpid(-1*(info->si_pid),&estado,WUNTRACED | WCONTINUED | WNOHANG);
 
 	//Busca PID
 	jobAux = Jobs_retornaJobComPID(&Jobs,info->si_pid);
+
+	//Aguarda o filho enviar um SIGNAL
+	waitpid(-1*(info->si_pid),&estado,WUNTRACED | WCONTINUED | WNOHANG);
 
 	//A Job está PARADA (Comando digitado: Ctrl+Z)
 	if (WIFSTOPPED(estado)) {
@@ -97,8 +105,10 @@ void Signal_capturaSigCHLD (int signum, siginfo_t *info, void *context) {
 }
 
 /*
-* Função: Signal_instalacao (void)
-* Descrição: Efetua a instalação dos handlers
+* Função	: Signal_instalacao (void)
+* Descrição	: Efetua a instalação dos Handlers dos sinais desejados
+* Parâmetros	: void
+* Retorno	: void
 */
 void Signal_Instalacao(void) {
 	//Configura handler TSTP
@@ -116,18 +126,4 @@ void Signal_Instalacao(void) {
 
 	//Instala handler CHLD
 	sigaction(SIGCHLD, &CHLD, &oldCHLD);
-}
-
-/**
- * $name children_sig_setup;
- * $proto void children_sig_setup(void);
- *
- * Restaura os handlers anteriores aa execucao de sig_setup(). Para ser
- * usada nos processos filhos do shell.
- */
-
-void Signal_InstalacaoFilhos(void)
-{
-    sigaction(SIGTSTP, &oldTSTP, NULL);
-    sigaction(SIGCHLD, &oldCHLD, NULL);
 }

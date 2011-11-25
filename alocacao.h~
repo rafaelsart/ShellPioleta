@@ -7,8 +7,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
-
 /*
 * Função		: Alocacao_alocaVetor (int)
 * Descrição		: Aloca um vetor de tamanho pré-determinado e o retorna em caso de sucesso.
@@ -17,6 +15,7 @@
 * Retorno		: Vetor alocado em caso de sucesso, NULO em caso contrário
 */
 char* Alocacao_alocaVetor (int tamanhoVetor);
+
 
 
 

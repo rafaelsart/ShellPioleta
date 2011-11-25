@@ -8,10 +8,8 @@
 #include <string.h>
 #include <termios.h>
 
-//Estrutura global
+// Estrutura global
 struct termios oldtio;
-
-
 
 /*
 * Função	: Canonical_setNonCanonicalMode (void)
@@ -20,8 +18,6 @@ struct termios oldtio;
 * Retorno	: void
 */
 void Canonical_setNonCanonicalMode (void);
-
-
 
 /*
 * Função	: Canonical_setCanonicalMode (void)

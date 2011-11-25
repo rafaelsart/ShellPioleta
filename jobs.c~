@@ -16,10 +16,12 @@
 #include "tela.h"
 
 /*
-* Função: Jobs_adicionaJob (JobHeader, pid_t, int)
-* Descrição: Dado o nó-cabeça da Lista de Jobs:
-* 1) Cria uma se a mesma for inexistente e insere a Job no final desta Lista
-* 2) Insere a Job no final da Lista
+* Função	: Jobs_adicionaJob (JobHeader, pid_t)
+* Descrição	: Remove a Job buscada da Lista de Jobs
+* Parâmetros:
+* JobHeader *L	: Nó-Cabeça da Lista de Jobs (modificado em caso de remoção bem-sucedida)
+* pid_t pid	: ID da Job a ser buscada
+* Retorno	: void
 */
 int Jobs_adicionaJob (JobHeader *L, char *comando, pid_t pid, int status, int statusExecucao) {
 	//Variáveis
@@ -61,10 +63,14 @@ int Jobs_adicionaJob (JobHeader *L, char *comando, pid_t pid, int status, int st
 }
 
 /*
-* Função: Jobs_RemoveJob (JobHeader, pid_t)
-* Descrição: Dado um PID, busca a Job correspondente e remove da Lista caso encontre
+* Função	: Jobs_removeJob (JobHeader, pid_t)
+* Descrição	: Remove a Job buscada da Lista de Jobs
+* Parâmetros:
+* JobHeader *L	: Nó-Cabeça da Lista de Jobs (modificado em caso de remoção bem-sucedida)
+* pid_t pid	: ID da Job a ser buscada
+* Retorno	: void
 */
-int Jobs_removeJob (JobHeader *L, pid_t pid) {
+void Jobs_removeJob (JobHeader *L, pid_t pid) {
 	//Variáveis
 	Job *jobAux;
 	Job *jobInicio;
@@ -101,17 +107,17 @@ int Jobs_removeJob (JobHeader *L, pid_t pid) {
 				jobAux = jobInicio;
 				jobInicio = jobInicio->prox;
 			}
-			//Job não encontrado
-			return ERRO_NAO_ENCONTRADO;
 		}
 	}
-	//Lista vazia
-	return ERRO_LISTA_VAZIA;
 }
 
 /*
-* Função: Jobs_retornaJobComPID (JobHeader, pid_t)
-* Descrição: Retorna a Job com o PID buscado
+* Função	: Jobs_retornaJobComPID (JobHeader, pid_t)
+* Descrição	: Retorna a Job com o PID buscado
+* Parâmetros:
+* JobHeader *L	: Nó-Cabeça da Lista de Jobs
+* pid_t pid	: ID da Job a ser buscada
+* Retorno	: Job Buscada
 */
 Job* Jobs_retornaJobComPID (JobHeader *L, pid_t pid) {
 	//Variáveis	
@@ -131,8 +137,12 @@ Job* Jobs_retornaJobComPID (JobHeader *L, pid_t pid) {
 	
 
 /*
-* Função: Jobs_colocaJobEmBackground (JobHeader, pid_t)
-* Dado um PID, busca a Job correspondente e define seu status como BACKGROUND caso encontre
+* Função	: Jobs_colocaJobEmBackground (JobHeader*, pid_t)
+* Procura pela Job de ID pid e coloca em BACKGROUND com as devidas alterações
+* Parâmetros:
+* JobHeader L	: Nó-Cabeça da Lista de Jobs
+* pid_t pid	: ID da Job a ser colocada em BACKGROUND
+* Retorno	: void
 */
 void Jobs_colocaJobEmBackground (JobHeader *L, pid_t pid) {
 	//Variáveis
@@ -148,7 +158,6 @@ void Jobs_colocaJobEmBackground (JobHeader *L, pid_t pid) {
 				printf("\nJob ja terminou.\n");
 				return;
 			}
-
 			//O Job ainda está RODANDO
 			else if(jobAux->statusExecucao == RODANDO){
 				//Atualiza job
@@ -167,12 +176,18 @@ void Jobs_colocaJobEmBackground (JobHeader *L, pid_t pid) {
 }
 
 /*
-* Função: Jobs_colocaJobEmForeground (JobHeader, pid_t)
-* Dado um PID, busca a Job correspondente e define seu status como FOREGROUND caso encontre
+* Função	: Jobs_colocaJobEmForeground (JobHeader*, pid_t)
+* Procura pela Job de ID pid e coloca em FOREGROUND com as devidas alterações
+* Parâmetros:
+* JobHeader L	: Nó-Cabeça da Lista de Jobs
+* pid_t pid	: ID da Job a ser colocada em FOREGROUND
+* Retorno	: void
 */
 void Jobs_colocaJobEmForeground (JobHeader *L, pid_t pid) {
 	//Variáveis
 	Job *jobAux;
+	int estado;
+
 	//Copia a lista
 	jobAux = L->primeiroJob;
 	//Rotina de pesquisa da Lista
@@ -198,19 +213,32 @@ void Jobs_colocaJobEmForeground (JobHeader *L, pid_t pid) {
 				//Atualiza job
 				jobAux->status = FOREGROUND;
 				jobAux->statusExecucao = RODANDO;
-				int estado;
-				//FALTA ALGUMA COISA
-				kill(jobAux->pid,SIGCONT);
+
+				//Aguarda o filho responder
+				waitpid(-1*(jobAux->pid),&estado,WUNTRACED);
+
+				//A Job está PARADA (Comando digitado: Ctrl+Z)
+				if (WIFSTOPPED(estado)) {
+					//Atualiza status da Job
+					jobAux->status = BACKGROUND;
+					jobAux->statusExecucao = PAUSADO;
+					return;
+				}
+				//Estado inatingível
+				if(WIFCONTINUED(estado)) return;
+
+				//A Job TERMINOU (Programa encerrado)
+				jobAux->statusExecucao = TERMINOU;
+				jobAux->status = BACKGROUND;
 
 				//Retorno
-				return ;
+				return;
 			}
 
 			//Atualiza job
 			jobAux->status = FOREGROUND;
 			jobAux->statusExecucao = RODANDO;
 
-			printf("\n%d\n",jobAux->pid);
 			//Continua a execução da Job
 			kill(jobAux->pid,SIGCONT);
 
@@ -225,8 +253,11 @@ void Jobs_colocaJobEmForeground (JobHeader *L, pid_t pid) {
 }
 
 /* 
-* Função: Jobs_retornaJobEmForeground (JobHeader)
-* Descrição: Retorna Job em Foreground
+* Função	: Jobs_retornaJobEmForeground (JobHeader)
+* Descrição	: Retorna a Job cujo estado é FOREGROUND
+* Parâmetros:
+* JobHeader L	: Nó-Cabeça da Lista de Jobs
+* Retorno	: Job pertencente à L cujo estado é FOREGROUND
 */
 Job* Jobs_retornaJobEmForeground (JobHeader L) {
 	//Armazena primeiro elemento da lista
@@ -243,8 +274,11 @@ Job* Jobs_retornaJobEmForeground (JobHeader L) {
 }
 
 /*
-* Função: Jobs_imprimeJobs(JobHeader)
-* Descrição: Imprime Lista de Jobs na Tela
+* Função	: Jobs_imprimeJobs(JobHeader)
+* Descrição	: Imprime Lista de Jobs na Tela
+* Parâmetros:
+* JobHeader L	: Nó-Cabeça da Lista de Jobs
+* Retorno	: void
 */
 void Jobs_imprimeJobs(JobHeader L) {
 	//Variáveis

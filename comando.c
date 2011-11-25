@@ -15,8 +15,11 @@
 #include "comando.h"
 
 /*
-* Função: Comando_isBuiltIn (char**)
-* Descrição: Identifica se a Linha de Comando contém um comando Built-In
+* Função		: Comando_isBuiltIn (char**)
+* Descrição		: Identifica se a Linha de Comando contém um comando Built-In
+* Parâmetros:
+* char **Parametro	: Linha de Comando convertida em um vetor para cada palavra
+* Retorno		: 1 se o comando for Built-In, e 0 em caso contrário
 */
 int Comando_isBuiltIn (char **Parametro) {
 	//cd
@@ -44,8 +47,11 @@ int Comando_isBuiltIn (char **Parametro) {
 }
 
 /*
-* Função: Comando_rodaBuiltIn (char**)
-* Descrição: Roda comandos Built-In, definidos na função Comando_isBuiltIn
+* Função		: Comando_rodaBuiltIn (char**)
+* Descrição		: Executa um comando Built-In
+* Parâmetros:
+* char **Parametro	: Linha de Comando convertida em um vetor para cada palavra
+* Retorno		: void
 */
 void Comando_rodaBuiltIn (char **Parametro) {
 	//Variáveis
@@ -71,6 +77,7 @@ void Comando_rodaBuiltIn (char **Parametro) {
 		}
 		else printf("Uso: bg <id>\n");
 	}
+
 	//fg
 	if (strcmp(Parametro[0], "fg") == 0) {
 		if(Parametro[1]) {
@@ -80,11 +87,13 @@ void Comando_rodaBuiltIn (char **Parametro) {
 		}
 		else printf("Uso: bg <id>\n");
 	}
+
 	//bgcurjob
 	if (strcmp(Parametro[0], "bgcurjob") == 0) {
 		Jobs_imprimeJobs(Jobs);
 		Jobs_colocaJobEmBackground(&Jobs,Jobs.currentForegroundJob->pid);
 	}
+
 	//fgcurjob
 	if (strcmp(Parametro[0], "fgcurjob") == 0) {
 		//waitpid(Jobs.ultimoJob->pid, NULL, 0);
@@ -93,10 +102,15 @@ void Comando_rodaBuiltIn (char **Parametro) {
 }
 
 /*
-* Função: Comando_rodaLinhaComando (char*, char**, int, int, int)
-* Descrição: Roda os comandos não built-in
+* Função		: Comando_rodaBuiltIn (char**, int, int)
+* Descrição		: Executa comandos do Sistema (com exceção dos Built-In)
+* Parâmetros:
+* char **Parametro	: Linha de Comando convertida em um vetor para cada palavra
+* int numParametros	: Número de parâmetros (afim de facilitar a manipulação dos parâmetros
+* int status		: Modo de Execução do Comando
+* Retorno		: void
 */
-int Comando_rodaLinhaComando (char **Parametro, int numParametros, int status) {
+void Comando_rodaLinhaComando (char **Parametro, int numParametros, int status) {
 	//Variáveis
 	pid_t pidNovoProcesso;
 	char *tokenPath;
@@ -105,13 +119,12 @@ int Comando_rodaLinhaComando (char **Parametro, int numParametros, int status) {
 	//Cria processo-filho
 	pidNovoProcesso = fork();
 
-	//if(status == BACKGROUND) Jobs_colocaJobEmBackground(&Jobs,pidNovoProcesso);
-
 	//Falha na criação
 	if(pidNovoProcesso == -1) {
 		perror("Nao foi possivel criar o processo.\n");
 		exit(0);
 	}
+
 	//Processo ativo
 	else if(pidNovoProcesso == 0) {
 		//Aloca caminho
@@ -148,11 +161,12 @@ int Comando_rodaLinhaComando (char **Parametro, int numParametros, int status) {
 			//Tela_apagaCaracteres(TERMINAL_TAMANHOLINHA);
 			execv(Caminho, Parametro);
 		}
+
 		//Erro
-		//Tela_apagaCaracteres(TERMINAL_TAMANHOLINHA);
 		fprintf(stderr,"Comando nao reconhecido.\n");
 		exit(EXIT_FAILURE);
 	}
+
 	//Processo-pai	
 	else {
 		//Define ID do grupo de processos
@@ -164,13 +178,14 @@ int Comando_rodaLinhaComando (char **Parametro, int numParametros, int status) {
 		//Espera em caso de FOREGROUND
 		if(status == FOREGROUND) waitpid(pidNovoProcesso, NULL, 0);
 		else {
-			//return 1;
 			Jobs_imprimeJobs(Jobs);
 			Tela_apagaCaracteres(TERMINAL_TAMANHOLINHA);
 		}
 	}
+
 	//Desaloca memória
 	free(Path);
+
 	//Retorno
-	return 1;
+	return;
 }
